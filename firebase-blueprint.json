@@ -1,0 +1,128 @@
+{
+  "entities": {
+    "StudentAccount": {
+      "title": "Student Account",
+      "description": "Student detective login account",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string" },
+        "nickname": { "type": "string" },
+        "username": { "type": "string" },
+        "passwordHash": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "lastLoginAt": { "type": "string" },
+        "accountStatus": { "type": "string" }
+      },
+      "required": ["studentId", "username", "nickname"]
+    },
+    "Student": {
+      "title": "Student Profile",
+      "description": "Student public detective profile",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string" },
+        "nickname": { "type": "string" },
+        "username": { "type": "string" },
+        "registeredAt": { "type": "string" },
+        "lastActiveAt": { "type": "string" }
+      },
+      "required": ["studentId", "nickname"]
+    },
+    "Progress": {
+      "title": "Student Progress",
+      "description": "Progress tracking per student",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string" },
+        "totalPoints": { "type": "number" },
+        "maxPossiblePoints": { "type": "number" },
+        "completedMissionIds": { "type": "array", "items": { "type": "string" } },
+        "baselineStatus": { "type": "string" },
+        "postTestStatus": { "type": "string" },
+        "lastUpdated": { "type": "string" }
+      },
+      "required": ["studentId"]
+    },
+    "QuestionAttempt": {
+      "title": "Question Attempt",
+      "description": "Student answer and score on specific question",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string" },
+        "missionId": { "type": "string" },
+        "questionId": { "type": "string" },
+        "score": { "type": "number" },
+        "maxScore": { "type": "number" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["studentId", "missionId", "questionId"]
+    },
+    "MissionResult": {
+      "title": "Mission Result",
+      "description": "Completed mission summary",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string" },
+        "missionId": { "type": "string" },
+        "score": { "type": "number" },
+        "maxScore": { "type": "number" },
+        "completedAt": { "type": "string" }
+      },
+      "required": ["studentId", "missionId"]
+    },
+    "Evidence": {
+      "title": "Evidence Card",
+      "description": "Evidence gathered during investigation",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "studentId": { "type": "string" },
+        "missionId": { "type": "string" },
+        "questionId": { "type": "string" },
+        "type": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "studentId", "missionId"]
+    },
+    "AssessmentResult": {
+      "title": "Assessment Result",
+      "description": "Baseline or Post-test score",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string" },
+        "type": { "type": "string" },
+        "score": { "type": "number" },
+        "maxScore": { "type": "number" },
+        "completedAt": { "type": "string" }
+      },
+      "required": ["studentId", "type"]
+    },
+    "AIUsageLog": {
+      "title": "AI Usage Log",
+      "description": "Student AI queries and hints",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string" },
+        "missionId": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["studentId", "timestamp"]
+    },
+    "TeacherStudentMapping": {
+      "title": "Teacher Student Mapping",
+      "description": "Teacher local roster mapping with real names",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string" },
+        "realName": { "type": "string" },
+        "studentNumber": { "type": "string" },
+        "roomNumber": { "type": "string" },
+        "notes": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["studentId"]
+    }
+  }
+}

@@ -112,7 +112,7 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
       const passwordHash = await hashPassword(regPassword);
 
       // Register into StorageService
-      const result = StorageService.registerAccount(
+      const result = await StorageService.registerAccount(
         regNickname,
         regUsername,
         passwordHash
@@ -154,7 +154,7 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
 
     try {
       const passwordHash = await hashPassword(loginPassword);
-      const result = StorageService.login(loginUsername, passwordHash);
+      const result = await StorageService.login(loginUsername, passwordHash);
 
       if (!result.success || !result.account || !result.student) {
         setErrorMessage(result.error || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');

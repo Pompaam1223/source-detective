@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StorageService } from '../engine/StorageService';
+import { CloudStorageService } from '../services/cloudStorageService';
 import { TeacherAuthService } from '../services/TeacherAuthService';
 import { TeacherNavigation, TeacherPageId } from './teacher/TeacherNavigation';
 import { TeacherDashboardPage } from './teacher/TeacherDashboardPage';
@@ -16,9 +17,9 @@ import {
   Lock,
   LogOut,
   Clock,
-  KeyRound,
-  CheckCircle2,
-  AlertCircle
+  Cloud,
+  RefreshCw,
+  Sparkles
 } from 'lucide-react';
 
 interface TeacherPanelProps {
@@ -29,9 +30,49 @@ interface TeacherPanelProps {
 export const TeacherPanel: React.FC<TeacherPanelProps> = ({ onRefresh, onExitTeacherMode }) => {
   const [currentPage, setCurrentPage] = useState<TeacherPageId>('PAGE_01_DASHBOARD');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
 
   const isAuthorized = TeacherAuthService.isAuthenticated();
   const session = TeacherAuthService.getSession();
+
+  // Master Cloud Sync function
+  const triggerCloudSync = async () => {
+    setIsSyncing(true);
+    try {
+      const res = await StorageService.syncAllFromCloud();
+      setLastSyncTime(res.timestamp);
+      setRefreshTrigger(prev => prev + 1);
+      if (onRefresh) onRefresh();
+    } catch (e) {
+      console.warn('Sync error:', e);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  // 1. Initial Cloud Sync on mount
+  useEffect(() => {
+    if (isAuthorized) {
+      triggerCloudSync();
+    }
+  }, [isAuthorized]);
+
+  // 2. Realtime listener for incoming progress from student devices
+  useEffect(() => {
+    if (!isAuthorized) return;
+    const unsubscribe = CloudStorageService.subscribeToClassroom(() => {
+      // Background sync when student data changes
+      StorageService.syncAllFromCloud().then(res => {
+        setLastSyncTime(res.timestamp);
+        setRefreshTrigger(prev => prev + 1);
+      });
+    });
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [isAuthorized]);
 
   if (!isAuthorized) {
     return (
@@ -53,8 +94,7 @@ export const TeacherPanel: React.FC<TeacherPanelProps> = ({ onRefresh, onExitTea
   }
 
   const handleInternalRefresh = () => {
-    setRefreshTrigger(prev => prev + 1);
-    if (onRefresh) onRefresh();
+    triggerCloudSync();
   };
 
   const handleLogout = () => {
@@ -76,24 +116,25 @@ export const TeacherPanel: React.FC<TeacherPanelProps> = ({ onRefresh, onExitTea
   return (
     <div className="space-y-6">
       
-      {/* Top Security & Session Status Bar */}
+      {/* Top Security & Cloud Sync Status Bar */}
       <div className="bg-slate-900/90 border border-slate-800 rounded-2xl px-5 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
             <Shield className="w-4 h-4" />
           </div>
           <div>
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs font-mono font-bold text-amber-300 uppercase">
-                TEACHER MODE v1.1 ACTIVE
+                TEACHER MODE ACTIVE
               </span>
-              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.2 rounded-full border border-emerald-500/20">
-                HMAC-SHA256 Token Verified
+              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-1">
+                <Cloud className="w-3 h-3 text-emerald-400" />
+                <span>Cloud Firestore: Connected (Real-time)</span>
               </span>
             </div>
             {session && (
               <p className="text-[10px] text-slate-400 font-mono">
-                เซสชันหมดอายุ: {new Date(session.expiresAt).toLocaleTimeString('th-TH')}
+                {lastSyncTime ? `ซิงค์ล่าสุด: ${lastSyncTime} • ` : ''}เซสชันหมดอายุ: {new Date(session.expiresAt).toLocaleTimeString('th-TH')}
               </p>
             )}
           </div>
@@ -101,11 +142,22 @@ export const TeacherPanel: React.FC<TeacherPanelProps> = ({ onRefresh, onExitTea
 
         <div className="flex items-center space-x-2">
           <button
+            onClick={triggerCloudSync}
+            disabled={isSyncing}
+            className="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 transition-all inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            title="ดึงข้อมูลล่าสุดจากนักเรียนทุกเครื่อง"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+            <span>{isSyncing ? 'กำลังซิงค์...' : 'ดึงข้อมูลล่าสุด'}</span>
+          </button>
+
+          <button
             onClick={handleLogout}
             className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+            title="ออกจาก Teacher Mode"
           >
             <LogOut className="w-3.5 h-3.5" />
-            <span>ออกจาก Teacher Mode</span>
+            <span>LOGOUT</span>
           </button>
         </div>
       </div>
@@ -123,7 +175,7 @@ export const TeacherPanel: React.FC<TeacherPanelProps> = ({ onRefresh, onExitTea
       />
 
       {/* Page Content View */}
-      <div className="transition-all duration-300">
+      <div className="transition-all duration-300" key={refreshTrigger}>
         {currentPage === 'PAGE_01_DASHBOARD' && (
           <TeacherDashboardPage onNavigatePage={(page) => setCurrentPage(page)} />
         )}

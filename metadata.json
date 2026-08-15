@@ -1,6 +1,6 @@
 {
   "name": "SOURCE DETECTIVE",
-  "description": "เกมการเรียนรู้นักสืบข่าวสาร เพื่อพัฒนาทักษะการคิด วิเคราะห์ ตรวจสอบข้อมูล พร้อมระบบบันทึกคะแนนและประวัติการใช้งานลง Google Sheets สำหรับครู",
+  "description": "เกมการเรียนรู้นักสืบข่าวสาร เพื่อพัฒนาทักษะการคิด วิเคราะห์ ตรวจสอบข้อมูล พร้อมระบบฐานข้อมูล Firebase Cloud เชื่อมโยงข้อมูลนักเรียนข้ามเครื่องแบบ Real-time และระบบครูผู้สอน",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

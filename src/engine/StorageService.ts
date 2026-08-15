@@ -11,6 +11,7 @@ import {
 } from '../types';
 import { generateStudentId } from '../utils/security';
 import { GoogleSheetsService } from '../services/googleSheetsService';
+import { CloudStorageService } from '../services/cloudStorageService';
 
 const STORAGE_KEYS = {
   CURRENT_STUDENT: 'sd_current_student',
@@ -48,17 +49,21 @@ export class StorageService {
     return list.find(acc => acc.studentId === studentId) || null;
   }
 
-  static registerAccount(
+  static async registerAccount(
     nickname: string,
     username: string,
     passwordHash: string
-  ): { success: boolean; account?: StudentAccount; student?: Student; error?: string } {
+  ): Promise<{ success: boolean; account?: StudentAccount; student?: Student; error?: string }> {
     try {
       const cleanUsername = username.trim().toLowerCase();
       const cleanNickname = nickname.trim();
 
-      // 1. Check uniqueness
-      const existing = this.getAccountByUsername(cleanUsername);
+      // 1. Check local & cloud uniqueness
+      let existing = this.getAccountByUsername(cleanUsername);
+      if (!existing) {
+        existing = await CloudStorageService.getAccountByUsername(cleanUsername);
+      }
+
       if (existing) {
         return { success: false, error: `Username "${username}" ถูกใช้งานแล้ว กรุณาเลือก Username อื่น` };
       }
@@ -95,7 +100,7 @@ export class StorageService {
       this.saveStudent(student);
 
       // 4. Initialize clean progress for this student
-      this.saveProgress({
+      const initialProgress: StudentProgress = {
         studentId,
         totalPoints: 0,
         maxPossiblePoints: 200,
@@ -103,7 +108,13 @@ export class StorageService {
         baselineStatus: 'NOT_STARTED',
         postTestStatus: 'NOT_STARTED',
         lastUpdated: now
-      });
+      };
+      this.saveProgress(initialProgress);
+
+      // 5. Cloud Firestore Synchronization
+      CloudStorageService.saveAccount(newAccount).catch(err => console.warn('Cloud sync error:', err));
+      CloudStorageService.saveStudent(student).catch(err => console.warn('Cloud sync error:', err));
+      CloudStorageService.saveProgress(initialProgress).catch(err => console.warn('Cloud sync error:', err));
 
       return { success: true, account: newAccount, student };
     } catch (e) {
@@ -112,20 +123,35 @@ export class StorageService {
     }
   }
 
-  static login(
+  static async login(
     username: string,
     passwordHash: string
-  ): { success: boolean; account?: StudentAccount; student?: Student; error?: string } {
+  ): Promise<{ success: boolean; account?: StudentAccount; student?: Student; error?: string }> {
     try {
       const cleanUsername = username.trim().toLowerCase();
-      const accounts = this.getAllAccounts();
-      const accountIdx = accounts.findIndex(a => a.username.toLowerCase() === cleanUsername);
+      let accounts = this.getAllAccounts();
+      let account = accounts.find(a => a.username.toLowerCase() === cleanUsername);
 
-      if (accountIdx === -1) {
+      // If not in LocalStorage, check Cloud Firestore for cross-device support
+      if (!account) {
+        const cloudAccount = await CloudStorageService.getAccountByUsername(cleanUsername);
+        if (cloudAccount) {
+          account = cloudAccount;
+          accounts.push(cloudAccount);
+          localStorage.setItem(STORAGE_KEYS.STUDENT_ACCOUNTS, JSON.stringify(accounts));
+
+          // Fetch student progress from Cloud if exists
+          const cloudProgress = await CloudStorageService.getProgress(cloudAccount.studentId);
+          if (cloudProgress) {
+            this.saveProgress(cloudProgress);
+          }
+        }
+      }
+
+      if (!account) {
         return { success: false, error: 'ไม่พบบัญชีผู้ใช้นี้ กรุณาตรวจสอบ Username หรือสมัครบัญชีใหม่' };
       }
 
-      const account = accounts[accountIdx];
       if (account.passwordHash !== passwordHash) {
         return { success: false, error: 'รหัสผ่าน (Password) ไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง' };
       }
@@ -133,8 +159,11 @@ export class StorageService {
       // Update lastLoginAt
       const now = new Date().toISOString();
       account.lastLoginAt = now;
-      accounts[accountIdx] = account;
-      localStorage.setItem(STORAGE_KEYS.STUDENT_ACCOUNTS, JSON.stringify(accounts));
+      const accountIdx = accounts.findIndex(a => a.studentId === account!.studentId);
+      if (accountIdx >= 0) {
+        accounts[accountIdx] = account;
+        localStorage.setItem(STORAGE_KEYS.STUDENT_ACCOUNTS, JSON.stringify(accounts));
+      }
 
       // Set current student session
       const student: Student = {
@@ -160,6 +189,10 @@ export class StorageService {
         });
       }
 
+      // Sync updated login to Cloud
+      CloudStorageService.saveAccount(account).catch(err => console.warn('Cloud sync error:', err));
+      CloudStorageService.saveStudent(student).catch(err => console.warn('Cloud sync error:', err));
+
       return { success: true, account, student };
     } catch (e) {
       console.error('Failed to login:', e);
@@ -174,6 +207,9 @@ export class StorageService {
       if (idx >= 0) {
         accounts[idx].passwordHash = newPasswordHash;
         localStorage.setItem(STORAGE_KEYS.STUDENT_ACCOUNTS, JSON.stringify(accounts));
+        
+        // Sync to cloud
+        CloudStorageService.resetPassword(studentId, newPasswordHash).catch(err => console.warn('Cloud reset error:', err));
         return true;
       }
       return false;
@@ -208,11 +244,14 @@ export class StorageService {
       localStorage.removeItem(`${STORAGE_KEYS.ASSESSMENTS}${studentId}`);
       localStorage.removeItem(`${STORAGE_KEYS.AI_LOGS}${studentId}`);
 
-      // 5. If currently active session in student mode matches this student, clear it
+      // 5. If currently active session matches this student, clear it
       const current = this.getStudent();
       if (current && current.studentId === studentId) {
         this.clearStudent();
       }
+
+      // 6. Delete from Cloud
+      CloudStorageService.deleteStudent(studentId).catch(err => console.warn('Cloud delete error:', err));
 
       return true;
     } catch (e) {
@@ -245,6 +284,9 @@ export class StorageService {
         updatedAt: new Date().toISOString()
       };
       localStorage.setItem(STORAGE_KEYS.TEACHER_MAPPINGS, JSON.stringify(mappings));
+
+      // Sync to cloud
+      CloudStorageService.saveTeacherMapping(mappings[mapping.studentId]).catch(err => console.warn('Cloud save mapping error:', err));
     } catch (e) {
       console.error('Failed to save teacher mapping:', e);
     }
@@ -265,6 +307,9 @@ export class StorageService {
       }
       localStorage.setItem(STORAGE_KEYS.STUDENTS_LIST, JSON.stringify(list));
 
+      // Sync to Cloud
+      CloudStorageService.saveStudent(student).catch(err => console.warn('Cloud save student error:', err));
+
       // Trigger Google Sheets live event (respecting privacy: log nickname and studentId)
       GoogleSheetsService.logSystemEvent(
         'นักสืบเข้าสู่ระบบ (Detective Active)',
@@ -282,7 +327,6 @@ export class StorageService {
       const data = localStorage.getItem(STORAGE_KEYS.CURRENT_STUDENT);
       if (!data) return null;
       const student: Student = JSON.parse(data);
-      // Ensure nickname fallback
       if (!student.nickname) {
         student.nickname = student.firstName || 'นักสืบเยาวชน';
       }
@@ -316,6 +360,9 @@ export class StorageService {
     try {
       const key = `${STORAGE_KEYS.STUDENT_PROGRESS}${progress.studentId}`;
       localStorage.setItem(key, JSON.stringify(progress));
+
+      // Sync to cloud
+      CloudStorageService.saveProgress(progress).catch(err => console.warn('Cloud save progress error:', err));
     } catch (e) {
       console.error('Failed to save progress:', e);
     }
@@ -362,7 +409,6 @@ export class StorageService {
 
       const computedTotal = missionScoreSum + baselineScore + postTestScore;
       
-      // Update points and max points
       progress.totalPoints = computedTotal > 0 ? computedTotal : (progress.totalPoints || 0);
       progress.maxPossiblePoints = progress.postTestStatus === 'COMPLETED' ? 240 : 200;
       progress.lastUpdated = new Date().toISOString();
@@ -398,6 +444,9 @@ export class StorageService {
       }
       const key = `${STORAGE_KEYS.ATTEMPTS}${attempt.studentId}`;
       localStorage.setItem(key, JSON.stringify(attempts));
+
+      // Sync to cloud
+      CloudStorageService.saveAttempt(attempt).catch(err => console.warn('Cloud save attempt error:', err));
 
       // Trigger Google Sheets live event
       const currentStudent = this.getStudent();
@@ -451,6 +500,9 @@ export class StorageService {
         this.syncProgressPoints(result.studentId);
       }
 
+      // Sync to cloud
+      CloudStorageService.saveMissionResult(result).catch(err => console.warn('Cloud save mission result error:', err));
+
       // Trigger Google Sheets live event
       const currentStudent = this.getStudent();
       GoogleSheetsService.logSystemEvent(
@@ -487,6 +539,9 @@ export class StorageService {
       }
       const key = `${STORAGE_KEYS.EVIDENCES}${evidence.studentId}`;
       localStorage.setItem(key, JSON.stringify(evidences));
+
+      // Sync to cloud
+      CloudStorageService.saveEvidence(evidence).catch(err => console.warn('Cloud save evidence error:', err));
     } catch (e) {
       console.error('Failed to save evidence:', e);
     }
@@ -532,6 +587,9 @@ export class StorageService {
         this.syncProgressPoints(result.studentId);
       }
 
+      // Sync to cloud
+      CloudStorageService.saveAssessmentResult(result).catch(err => console.warn('Cloud save assessment error:', err));
+
       // Trigger Google Sheets live event
       const currentStudent = this.getStudent();
       GoogleSheetsService.logSystemEvent(
@@ -564,6 +622,9 @@ export class StorageService {
       const list: AIUsageLog[] = data ? JSON.parse(data) : [];
       list.push(log);
       localStorage.setItem(key, JSON.stringify(list));
+
+      // Sync to cloud
+      CloudStorageService.saveAILog(log).catch(err => console.warn('Cloud save AI log error:', err));
 
       // Trigger Google Sheets live event
       const currentStudent = this.getStudent();
@@ -649,6 +710,153 @@ export class StorageService {
       all.push(...atts);
     });
     return all;
+  }
+
+  // --- Master Cloud Sync for Teacher Mode (Pull from Cloud to LocalStorage) ---
+  static async syncAllFromCloud(): Promise<{ studentCount: number; timestamp: string }> {
+    try {
+      const [
+        cloudAccounts,
+        cloudStudents,
+        cloudProgresses,
+        cloudAttempts,
+        cloudResults,
+        cloudEvidences,
+        cloudAssessments,
+        cloudAILogs,
+        cloudMappings
+      ] = await Promise.all([
+        CloudStorageService.getAllAccounts(),
+        CloudStorageService.getAllStudents(),
+        CloudStorageService.getAllProgresses(),
+        CloudStorageService.getAllAttempts(),
+        CloudStorageService.getAllMissionResults(),
+        CloudStorageService.getAllEvidences(),
+        CloudStorageService.getAllAssessments(),
+        CloudStorageService.getAllAILogs(),
+        CloudStorageService.getAllTeacherMappings()
+      ]);
+
+      // Merge Accounts
+      if (cloudAccounts.length > 0) {
+        const localAccounts = this.getAllAccounts();
+        const accountMap = new Map<string, StudentAccount>();
+        localAccounts.forEach(a => accountMap.set(a.studentId, a));
+        cloudAccounts.forEach(a => accountMap.set(a.studentId, a));
+        localStorage.setItem(STORAGE_KEYS.STUDENT_ACCOUNTS, JSON.stringify(Array.from(accountMap.values())));
+      }
+
+      // Merge Students
+      if (cloudStudents.length > 0) {
+        const localStudents = this.getAllStudents();
+        const studentMap = new Map<string, Student>();
+        localStudents.forEach(s => studentMap.set(s.studentId, s));
+        cloudStudents.forEach(s => studentMap.set(s.studentId, s));
+        localStorage.setItem(STORAGE_KEYS.STUDENTS_LIST, JSON.stringify(Array.from(studentMap.values())));
+      }
+
+      // Save Progresses
+      Object.entries(cloudProgresses).forEach(([studentId, progress]) => {
+        if (progress) {
+          const key = `${STORAGE_KEYS.STUDENT_PROGRESS}${studentId}`;
+          localStorage.setItem(key, JSON.stringify(progress));
+        }
+      });
+
+      // Save Attempts
+      if (cloudAttempts.length > 0) {
+        const studentAttemptsMap = new Map<string, QuestionAttempt[]>();
+        cloudAttempts.forEach(att => {
+          if (!studentAttemptsMap.has(att.studentId)) {
+            studentAttemptsMap.set(att.studentId, []);
+          }
+          studentAttemptsMap.get(att.studentId)!.push(att);
+        });
+        studentAttemptsMap.forEach((atts, studentId) => {
+          const key = `${STORAGE_KEYS.ATTEMPTS}${studentId}`;
+          localStorage.setItem(key, JSON.stringify(atts));
+        });
+      }
+
+      // Save Mission Results
+      if (cloudResults.length > 0) {
+        const studentResultsMap = new Map<string, MissionResult[]>();
+        cloudResults.forEach(res => {
+          if (!studentResultsMap.has(res.studentId)) {
+            studentResultsMap.set(res.studentId, []);
+          }
+          studentResultsMap.get(res.studentId)!.push(res);
+        });
+        studentResultsMap.forEach((results, studentId) => {
+          const key = `${STORAGE_KEYS.MISSION_RESULTS}${studentId}`;
+          localStorage.setItem(key, JSON.stringify(results));
+        });
+      }
+
+      // Save Evidences
+      if (cloudEvidences.length > 0) {
+        const studentEvidencesMap = new Map<string, Evidence[]>();
+        cloudEvidences.forEach(ev => {
+          if (!studentEvidencesMap.has(ev.studentId)) {
+            studentEvidencesMap.set(ev.studentId, []);
+          }
+          studentEvidencesMap.get(ev.studentId)!.push(ev);
+        });
+        studentEvidencesMap.forEach((evs, studentId) => {
+          const key = `${STORAGE_KEYS.EVIDENCES}${studentId}`;
+          localStorage.setItem(key, JSON.stringify(evs));
+        });
+      }
+
+      // Save Assessments
+      if (cloudAssessments.length > 0) {
+        const studentAssessmentsMap = new Map<string, AssessmentResult[]>();
+        cloudAssessments.forEach(ass => {
+          if (!studentAssessmentsMap.has(ass.studentId)) {
+            studentAssessmentsMap.set(ass.studentId, []);
+          }
+          studentAssessmentsMap.get(ass.studentId)!.push(ass);
+        });
+        studentAssessmentsMap.forEach((assessments, studentId) => {
+          const key = `${STORAGE_KEYS.ASSESSMENTS}${studentId}`;
+          localStorage.setItem(key, JSON.stringify(assessments));
+        });
+      }
+
+      // Save AI Logs
+      if (cloudAILogs.length > 0) {
+        const studentLogsMap = new Map<string, AIUsageLog[]>();
+        cloudAILogs.forEach(log => {
+          if (!studentLogsMap.has(log.studentId)) {
+            studentLogsMap.set(log.studentId, []);
+          }
+          studentLogsMap.get(log.studentId)!.push(log);
+        });
+        studentLogsMap.forEach((logs, studentId) => {
+          const key = `${STORAGE_KEYS.AI_LOGS}${studentId}`;
+          localStorage.setItem(key, JSON.stringify(logs));
+        });
+      }
+
+      // Save Mappings
+      if (Object.keys(cloudMappings).length > 0) {
+        const localMappings = this.getTeacherMappings();
+        const mergedMappings = { ...localMappings, ...cloudMappings };
+        localStorage.setItem(STORAGE_KEYS.TEACHER_MAPPINGS, JSON.stringify(mergedMappings));
+      }
+
+      const totalStudents = this.getAllStudents().length;
+      return {
+        studentCount: totalStudents,
+        timestamp: new Date().toLocaleTimeString('th-TH')
+      };
+    } catch (e) {
+      console.error('Failed to sync all from cloud:', e);
+      return {
+        studentCount: this.getAllStudents().length,
+        timestamp: new Date().toLocaleTimeString('th-TH')
+      };
+    }
   }
 
   // --- Demo Seeding & Data Reset ---
