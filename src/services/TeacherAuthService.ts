@@ -26,7 +26,7 @@ export class TeacherAuthService {
   }
 
   /**
-   * Retrieve active Teacher Session
+   * Retrieve active Teacher Session from sessionStorage or localStorage
    */
   static getSession(): TeacherSession | null {
     try {
@@ -34,6 +34,10 @@ export class TeacherAuthService {
       if (!raw) return null;
       const parsed: TeacherSession = JSON.parse(raw);
       if (parsed && parsed.role === 'TEACHER' && parsed.token) {
+        if (typeof parsed.expiresAt === 'number' && Date.now() > parsed.expiresAt) {
+          this.logout();
+          return null;
+        }
         return parsed;
       }
       return null;
@@ -43,7 +47,20 @@ export class TeacherAuthService {
   }
 
   /**
-   * Authenticate with Teacher Access Code via Server API
+   * Save Teacher Session to both storages for stable persistence
+   */
+  private static saveSession(session: TeacherSession): void {
+    try {
+      const serialized = JSON.stringify(session);
+      sessionStorage.setItem(TEACHER_SESSION_KEY, serialized);
+      localStorage.setItem(TEACHER_SESSION_KEY, serialized);
+    } catch (e) {
+      console.warn('Failed to persist teacher session:', e);
+    }
+  }
+
+  /**
+   * Authenticate with Teacher Access Code
    */
   static async authenticate(accessCode: string): Promise<TeacherAccessResult> {
     if (!accessCode || !accessCode.trim()) {
@@ -64,8 +81,42 @@ export class TeacherAuthService {
       };
     }
 
+    const normalizedInput = accessCode.trim().toUpperCase();
+    const VALID_CODES = [
+      'TEACHER@SD2026',
+      'TEACHER2026',
+      'TEACHER-SD-2025',
+      'TEACHER2025',
+      'TEACHER',
+      'ADMIN',
+      'SD2026',
+      'SD-2026',
+      'DETECTIVE_TEACHER_2025',
+      'DETECTIVE'
+    ];
+
+    // 1. Direct validation against recognized Teacher Codes
+    if (VALID_CODES.includes(normalizedInput)) {
+      this.clearFailedAttempts();
+      const expiresAt = Date.now() + 8 * 60 * 60 * 1000; // 8 hours active session
+      const staticToken = `client_t_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+      const session: TeacherSession = {
+        token: staticToken,
+        role: 'TEACHER',
+        authenticatedAt: new Date().toISOString(),
+        expiresAt
+      };
+      this.saveSession(session);
+      return {
+        success: true,
+        token: staticToken,
+        role: 'TEACHER',
+        expiresAt
+      };
+    }
+
+    // 2. Optional server endpoint fallback
     try {
-      // 1. Primary path: Server Authentication API
       const response = await fetch('/api/teacher/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -77,19 +128,14 @@ export class TeacherAuthService {
         const data = await response.json();
 
         if (response.ok && data.success && data.token) {
-          // Reset failed counter
           this.clearFailedAttempts();
-
           const session: TeacherSession = {
             token: data.token,
             role: 'TEACHER',
             authenticatedAt: new Date().toISOString(),
-            expiresAt: data.expiresAt || (Date.now() + 2 * 60 * 60 * 1000)
+            expiresAt: data.expiresAt || (Date.now() + 8 * 60 * 60 * 1000)
           };
-
-          // Save session
-          sessionStorage.setItem(TEACHER_SESSION_KEY, JSON.stringify(session));
-
+          this.saveSession(session);
           return {
             success: true,
             token: data.token,
@@ -109,40 +155,7 @@ export class TeacherAuthService {
         }
       }
     } catch {
-      // Fetch failed or backend not reachable (e.g. static hosting on GitHub Pages)
-    }
-
-    // 2. Static Hosting Fallback (GitHub Pages / Client-only mode)
-    const normalizedInput = accessCode.trim().toUpperCase();
-    const VALID_CODES = [
-      'TEACHER@SD2026',
-      'TEACHER2026',
-      'TEACHER-SD-2025',
-      'TEACHER2025',
-      'TEACHER',
-      'ADMIN',
-      'SD2026',
-      'SD-2026',
-      'DETECTIVE_TEACHER_2025',
-      'DETECTIVE'
-    ];
-    if (VALID_CODES.includes(normalizedInput)) {
-      this.clearFailedAttempts();
-      const expiresAt = Date.now() + 2 * 60 * 60 * 1000;
-      const staticToken = `client_t_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
-      const session: TeacherSession = {
-        token: staticToken,
-        role: 'TEACHER',
-        authenticatedAt: new Date().toISOString(),
-        expiresAt
-      };
-      sessionStorage.setItem(TEACHER_SESSION_KEY, JSON.stringify(session));
-      return {
-        success: true,
-        token: staticToken,
-        role: 'TEACHER',
-        expiresAt
-      };
+      // Offline or static environment fallback handled above
     }
 
     // Record failed attempt
@@ -154,7 +167,7 @@ export class TeacherAuthService {
   }
 
   /**
-   * Verify session token with backend
+   * Verify active session
    */
   static async verifySession(): Promise<boolean> {
     const session = this.getSession();
@@ -165,23 +178,7 @@ export class TeacherAuthService {
       return false;
     }
 
-    try {
-      const response = await fetch('/api/teacher/verify-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: session.token })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        return data.valid === true;
-      }
-      this.logout();
-      return false;
-    } catch {
-      // If server check fails due to offline state, rely on local expiration timestamp
-      return Date.now() < session.expiresAt;
-    }
+    return true;
   }
 
   /**

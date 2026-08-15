@@ -27,7 +27,7 @@ interface TeacherPanelProps {
   onExitTeacherMode?: () => void;
 }
 
-export const TeacherPanel: React.FC<TeacherPanelProps> = ({ onRefresh, onExitTeacherMode }) => {
+export const TeacherPanel: React.FC<TeacherPanelProps> = ({ onExitTeacherMode }) => {
   const [currentPage, setCurrentPage] = useState<TeacherPageId>('PAGE_01_DASHBOARD');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -36,40 +36,50 @@ export const TeacherPanel: React.FC<TeacherPanelProps> = ({ onRefresh, onExitTea
   const isAuthorized = TeacherAuthService.isAuthenticated();
   const session = TeacherAuthService.getSession();
 
-  // Master Cloud Sync function
-  const triggerCloudSync = async () => {
-    setIsSyncing(true);
+  // Master Cloud Sync function (manual or background)
+  const triggerCloudSync = async (isManual = false) => {
+    if (isManual) {
+      setIsSyncing(true);
+    }
     try {
       const res = await StorageService.syncAllFromCloud();
       setLastSyncTime(res.timestamp);
       setRefreshTrigger(prev => prev + 1);
-      if (onRefresh) onRefresh();
     } catch (e) {
-      console.warn('Sync error:', e);
+      console.warn('Sync notice:', e);
     } finally {
-      setIsSyncing(false);
+      if (isManual) {
+        setIsSyncing(false);
+      }
     }
   };
 
   // 1. Initial Cloud Sync on mount
   useEffect(() => {
     if (isAuthorized) {
-      triggerCloudSync();
+      triggerCloudSync(false);
     }
   }, [isAuthorized]);
 
-  // 2. Realtime listener for incoming progress from student devices
+  // 2. Realtime listener for incoming progress from student devices (throttled)
   useEffect(() => {
     if (!isAuthorized) return;
+    let throttleTimeout: any = null;
+
     const unsubscribe = CloudStorageService.subscribeToClassroom(() => {
-      // Background sync when student data changes
-      StorageService.syncAllFromCloud().then(res => {
-        setLastSyncTime(res.timestamp);
-        setRefreshTrigger(prev => prev + 1);
-      });
+      // Debounce sync so we don't spam sync on every small packet
+      if (throttleTimeout) return;
+      throttleTimeout = setTimeout(() => {
+        StorageService.syncAllFromCloud().then(res => {
+          setLastSyncTime(res.timestamp);
+          setRefreshTrigger(prev => prev + 1);
+        });
+        throttleTimeout = null;
+      }, 5000);
     });
 
     return () => {
+      if (throttleTimeout) clearTimeout(throttleTimeout);
       if (unsubscribe) unsubscribe();
     };
   }, [isAuthorized]);
@@ -142,7 +152,7 @@ export const TeacherPanel: React.FC<TeacherPanelProps> = ({ onRefresh, onExitTea
 
         <div className="flex items-center space-x-2">
           <button
-            onClick={triggerCloudSync}
+            onClick={() => triggerCloudSync(true)}
             disabled={isSyncing}
             className="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 transition-all inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
             title="ดึงข้อมูลล่าสุดจากนักเรียนทุกเครื่อง"
@@ -175,7 +185,7 @@ export const TeacherPanel: React.FC<TeacherPanelProps> = ({ onRefresh, onExitTea
       />
 
       {/* Page Content View */}
-      <div className="transition-all duration-300" key={refreshTrigger}>
+      <div className="transition-all duration-300">
         {currentPage === 'PAGE_01_DASHBOARD' && (
           <TeacherDashboardPage onNavigatePage={(page) => setCurrentPage(page)} />
         )}

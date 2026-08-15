@@ -10,26 +10,22 @@ interface TeacherModeScreenProps {
 }
 
 export const TeacherModeScreen: React.FC<TeacherModeScreenProps> = ({ onNavigate }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => TeacherAuthService.isAuthenticated());
   const [refreshKey, setRefreshKey] = useState(0);
-  const [sessionExpiry, setSessionExpiry] = useState<string | null>(null);
+  const [sessionExpiry, setSessionExpiry] = useState<string | null>(() => {
+    const session = TeacherAuthService.getSession();
+    return session ? new Date(session.expiresAt).toLocaleTimeString('th-TH') : null;
+  });
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const authed = TeacherAuthService.isAuthenticated();
-      if (authed) {
-        // Double check session with server
-        const valid = await TeacherAuthService.verifySession();
-        setIsAuthenticated(valid);
-        const session = TeacherAuthService.getSession();
-        if (session) {
-          setSessionExpiry(new Date(session.expiresAt).toLocaleTimeString('th-TH'));
-        }
-      } else {
-        setIsAuthenticated(false);
+    const authed = TeacherAuthService.isAuthenticated();
+    setIsAuthenticated(authed);
+    if (authed) {
+      const session = TeacherAuthService.getSession();
+      if (session) {
+        setSessionExpiry(new Date(session.expiresAt).toLocaleTimeString('th-TH'));
       }
-    };
-    checkAuth();
+    }
   }, [refreshKey]);
 
   const handleAuthSuccess = () => {
@@ -97,10 +93,7 @@ export const TeacherModeScreen: React.FC<TeacherModeScreenProps> = ({ onNavigate
       </div>
 
       {/* Main Teacher Panel */}
-      <TeacherPanel
-        key={refreshKey}
-        onRefresh={handleRefresh}
-      />
+      <TeacherPanel />
 
     </div>
   );
