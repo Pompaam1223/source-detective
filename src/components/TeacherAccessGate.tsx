@@ -119,20 +119,17 @@ export const TeacherAccessGate: React.FC<TeacherAccessGateProps> = ({
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4 pt-2 text-left">
             <div>
-              <div className="flex items-center justify-between mb-1.5">
+              <div className="mb-1.5">
                 <label className="block text-xs font-mono font-bold text-slate-300">
                   Teacher Access Code
                 </label>
-                <span className="text-[11px] font-mono text-amber-400/80">
-                  รหัสเริ่มต้น: <code className="bg-slate-800 px-1.5 py-0.5 rounded text-amber-300 font-bold">TEACHER@SD2026</code>
-                </span>
               </div>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={accessCode}
                   onChange={(e) => setAccessCode(e.target.value)}
-                  placeholder="กรอก TEACHER@SD2026 หรือ TEACHER2026..."
+                  placeholder="กรอกรหัสผ่านครูผู้สอน..."
                   disabled={isLoading || remainingSeconds > 0}
                   className="w-full bg-slate-950 border-2 border-slate-700 focus:border-amber-500 rounded-2xl pl-4 pr-12 py-3 text-sm text-slate-100 font-mono tracking-wider focus:outline-none transition-colors disabled:opacity-50"
                   autoFocus
@@ -152,7 +149,7 @@ export const TeacherAccessGate: React.FC<TeacherAccessGateProps> = ({
             {errorMessage && (
               <div className="p-3.5 rounded-2xl bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-bold flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
-                <span>{errorMessage} (ลองใช้ <code className="underline font-bold">TEACHER@SD2026</code> หรือ <code className="underline font-bold">TEACHER2026</code>)</span>
+                <span>{errorMessage}</span>
               </div>
             )}
 
