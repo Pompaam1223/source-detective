@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TeacherAuthService } from '../services/TeacherAuthService';
-import { ShieldCheck, Lock, ArrowLeft, KeyRound, AlertCircle, Sparkles, UserCheck } from 'lucide-react';
+import { ShieldCheck, Lock, ArrowLeft, KeyRound, AlertCircle, Sparkles, UserCheck, Eye, EyeOff, Info } from 'lucide-react';
 import { DetectiveTeacherInspector } from './characters/DetectiveCharacters';
 import { PushPin } from './decorations/DetectiveDecorations';
 
@@ -14,6 +14,7 @@ export const TeacherAccessGate: React.FC<TeacherAccessGateProps> = ({
   onBackToStudentMode
 }) => {
   const [accessCode, setAccessCode] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
@@ -118,20 +119,32 @@ export const TeacherAccessGate: React.FC<TeacherAccessGateProps> = ({
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4 pt-2 text-left">
             <div>
-              <label className="block text-xs font-mono font-bold text-slate-300 mb-1.5">
-                Teacher Access Code
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-mono font-bold text-slate-300">
+                  Teacher Access Code
+                </label>
+                <span className="text-[11px] font-mono text-amber-400/80">
+                  รหัสเริ่มต้น: <code className="bg-slate-800 px-1.5 py-0.5 rounded text-amber-300 font-bold">TEACHER@SD2026</code>
+                </span>
+              </div>
               <div className="relative">
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={accessCode}
                   onChange={(e) => setAccessCode(e.target.value)}
-                  placeholder="กรอก Teacher Access Code..."
+                  placeholder="กรอก TEACHER@SD2026 หรือ TEACHER2026..."
                   disabled={isLoading || remainingSeconds > 0}
-                  className="w-full bg-slate-950 border-2 border-slate-700 focus:border-amber-500 rounded-2xl px-4 py-3 text-sm text-slate-100 font-mono tracking-wider focus:outline-none transition-colors disabled:opacity-50"
+                  className="w-full bg-slate-950 border-2 border-slate-700 focus:border-amber-500 rounded-2xl pl-4 pr-12 py-3 text-sm text-slate-100 font-mono tracking-wider focus:outline-none transition-colors disabled:opacity-50"
                   autoFocus
                 />
-                <KeyRound className="w-5 h-5 text-slate-500 absolute right-4 top-1/2 -translate-y-1/2" />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-400 p-1 transition-colors cursor-pointer"
+                  title={showPassword ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'}
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
             </div>
 
@@ -139,7 +152,7 @@ export const TeacherAccessGate: React.FC<TeacherAccessGateProps> = ({
             {errorMessage && (
               <div className="p-3.5 rounded-2xl bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-bold flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
-                <span>{errorMessage}</span>
+                <span>{errorMessage} (ลองใช้ <code className="underline font-bold">TEACHER@SD2026</code> หรือ <code className="underline font-bold">TEACHER2026</code>)</span>
               </div>
             )}
 

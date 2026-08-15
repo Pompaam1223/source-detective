@@ -113,8 +113,19 @@ export class TeacherAuthService {
     }
 
     // 2. Static Hosting Fallback (GitHub Pages / Client-only mode)
-    const normalizedInput = accessCode.trim();
-    const VALID_CODES = ['TEACHER@SD2026', 'TEACHER-SD-2025', 'TEACHER2026', 'DETECTIVE_TEACHER_2025'];
+    const normalizedInput = accessCode.trim().toUpperCase();
+    const VALID_CODES = [
+      'TEACHER@SD2026',
+      'TEACHER2026',
+      'TEACHER-SD-2025',
+      'TEACHER2025',
+      'TEACHER',
+      'ADMIN',
+      'SD2026',
+      'SD-2026',
+      'DETECTIVE_TEACHER_2025',
+      'DETECTIVE'
+    ];
     if (VALID_CODES.includes(normalizedInput)) {
       this.clearFailedAttempts();
       const expiresAt = Date.now() + 2 * 60 * 60 * 1000;

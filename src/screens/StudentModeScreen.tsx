@@ -196,7 +196,7 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
   if (successAccount) {
     return (
       <div className="max-w-xl mx-auto py-8 px-4 animate-fadeIn">
-        <div className="relative bg-gradient-to-b from-amber-50 to-amber-100 dark:from-slate-900 dark:to-slate-950 border-4 border-amber-500 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 text-center">
+        <div className="relative bg-slate-900 border-4 border-amber-500/60 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 text-center text-slate-100">
           <PushPin color="green" className="absolute -top-3.5 left-1/2 -translate-x-1/2" />
           <TapeSticker className="top-3 right-6 hidden sm:block" angle={-8} />
 
@@ -205,15 +205,15 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
           </div>
 
           <div className="space-y-2">
-            <div className="inline-flex items-center space-x-1.5 bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 px-3.5 py-1 rounded-full text-xs font-mono font-black border border-emerald-500/40">
+            <div className="inline-flex items-center space-x-1.5 bg-emerald-500/20 text-emerald-300 px-3.5 py-1 rounded-full text-xs font-mono font-black border border-emerald-500/40">
               <Sparkles className="w-3.5 h-3.5" />
               <span>DETECTIVE ACCOUNT CREATED!</span>
             </div>
             
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 font-mono">
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-100 font-mono">
               ยินดีต้อนรับสู่สำนักงานนักสืบ!
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-sm mx-auto">
+            <p className="text-xs sm:text-sm text-slate-300 max-w-sm mx-auto">
               สร้างตัวตนนักสืบของคุณสำเร็จ พร้อมออกปฏิบัติภารกิจสืบสวนแล้ว
             </p>
           </div>
@@ -227,7 +227,7 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
                   OFFICIAL DETECTIVE ID
                 </span>
               </div>
-              <span className="text-[10px] font-mono bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/40">
+              <span className="text-[10px] font-mono bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/40 font-bold">
                 ACTIVE
               </span>
             </div>
@@ -244,7 +244,7 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
               </div>
             </div>
 
-            <div className="bg-slate-950/80 p-3 rounded-xl border border-amber-500/30 flex items-center justify-between">
+            <div className="bg-slate-950/90 p-3.5 rounded-xl border border-amber-500/30 flex items-center justify-between">
               <div>
                 <span className="text-[10px] font-mono text-slate-400 block">รหัสนักสืบประจำตัว (Student ID):</span>
                 <span className="text-lg font-mono font-black text-amber-400 tracking-wider">
@@ -262,7 +262,7 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
               </button>
             </div>
 
-            <p className="text-[11px] text-amber-300/80 leading-relaxed">
+            <p className="text-[11px] text-amber-300/90 leading-relaxed">
               💡 <strong>ข้อแนะนำ:</strong> จำ <strong>Username</strong> และ <strong>Password</strong> ของคุณไว้เพื่อใช้เข้าสู่ระบบในครั้งถัดไป
             </p>
           </div>
@@ -287,7 +287,7 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
   if (authMode === 'LOGGED_IN' && currentStudent) {
     return (
       <div className="max-w-xl mx-auto py-8 px-4 animate-fadeIn">
-        <div className="relative bg-gradient-to-b from-amber-50 to-amber-100 dark:from-slate-900 dark:to-slate-950 border-4 border-amber-500/60 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+        <div className="relative bg-slate-900 border-4 border-amber-500/60 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 text-slate-100">
           <PushPin color="yellow" className="absolute -top-3.5 left-1/2 -translate-x-1/2" />
           <TapeSticker className="top-3 right-6 hidden sm:block" angle={6} />
 
@@ -297,20 +297,20 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
               <DetectiveDog size={110} variant="happy" />
             </div>
 
-            <span className="text-xs font-mono font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest block">
+            <span className="text-xs font-mono font-black text-amber-400 uppercase tracking-widest block">
               ★ DETECTIVE PROFILE ACTIVE ★
             </span>
 
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 font-mono">
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-100 font-mono">
               สำนักงานนักสืบ: {currentStudent.nickname || currentStudent.firstName || 'นักสืบเยาวชน'}
             </h2>
-            <p className="text-xs text-slate-600 dark:text-slate-400 max-w-sm mx-auto">
+            <p className="text-xs text-slate-300 max-w-sm mx-auto">
               บัญชีนักสืบกำลังออนไลน์และพร้อมปฏิบัติหน้าที่สืบสวน
             </p>
           </div>
 
           {/* Detective ID Badge */}
-          <div className="bg-slate-900 border-2 border-amber-500/40 rounded-2xl p-5 text-amber-100 space-y-4 shadow-xl">
+          <div className="bg-slate-950 border-2 border-amber-500/40 rounded-2xl p-5 text-amber-100 space-y-4 shadow-xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center space-x-2">
                 <Shield className="w-5 h-5 text-amber-400" />
@@ -324,18 +324,18 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
             </div>
 
             <div className="grid grid-cols-2 gap-3 text-xs font-mono">
-              <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
                 <span className="text-[10px] text-slate-400 block">ฉายานักสืบ:</span>
                 <strong className="text-sm text-slate-100">{currentStudent.nickname || currentStudent.firstName}</strong>
               </div>
 
-              <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
                 <span className="text-[10px] text-slate-400 block">ชื่อผู้ใช้ (Username):</span>
                 <strong className="text-sm text-slate-100">@{currentStudent.username || 'detective'}</strong>
               </div>
             </div>
 
-            <div className="bg-slate-950 p-3 rounded-xl border border-amber-500/30 flex items-center justify-between">
+            <div className="bg-slate-900 p-3 rounded-xl border border-amber-500/30 flex items-center justify-between">
               <div>
                 <span className="text-[10px] font-mono text-slate-400 block">รหัสนักสืบ (Student ID):</span>
                 <span className="text-base font-mono font-black text-amber-400">
@@ -366,7 +366,7 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
                       className={`p-1.5 rounded-lg border font-bold ${
                         isDone
                           ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
-                          : 'bg-slate-950 border-slate-800 text-slate-500'
+                          : 'bg-slate-900 border-slate-800 text-slate-500'
                       }`}
                     >
                       <span>M{idx + 1}</span> {isDone ? '✓' : '○'}
@@ -392,7 +392,7 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
               <button
                 type="button"
                 onClick={() => onNavigate('SCORE_REPORT')}
-                className="flex-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-900 dark:text-amber-300 font-bold py-2.5 px-4 rounded-xl border border-amber-500/40 text-xs flex items-center justify-center space-x-1.5 cursor-pointer transition-colors"
+                className="flex-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold py-2.5 px-4 rounded-xl border border-amber-500/40 text-xs flex items-center justify-center space-x-1.5 cursor-pointer transition-colors"
               >
                 <span>ดูผลคะแนน & ใบรับรอง</span>
               </button>
@@ -400,7 +400,7 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
               <button
                 type="button"
                 onClick={handleLogout}
-                className="bg-rose-500/20 hover:bg-rose-500/30 text-rose-700 dark:text-rose-300 font-bold py-2.5 px-4 rounded-xl border border-rose-500/40 text-xs flex items-center justify-center space-x-1.5 cursor-pointer transition-colors"
+                className="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold py-2.5 px-4 rounded-xl border border-rose-500/40 text-xs flex items-center justify-center space-x-1.5 cursor-pointer transition-colors"
               >
                 <LogOut className="w-4 h-4" />
                 <span>ออกจากระบบ / สลับบัญชี</span>
@@ -415,7 +415,7 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
   // --- 3. REGISTER / LOGIN TABS VIEW ---
   return (
     <div className="max-w-xl mx-auto py-8 px-4 animate-fadeIn">
-      <div className="relative bg-gradient-to-b from-amber-50 to-amber-100/90 dark:from-slate-900 dark:to-slate-950 border-4 border-amber-500/50 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+      <div className="relative bg-slate-900 border-4 border-amber-500/60 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 text-slate-100">
         <PushPin color="red" className="absolute -top-3.5 left-1/2 -translate-x-1/2" />
         <TapeSticker className="top-3 right-6 hidden sm:block" angle={-6} />
 
@@ -426,7 +426,7 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
           </div>
 
           {/* Mode Switcher Tabs */}
-          <div className="flex bg-slate-900/80 p-1.5 rounded-2xl border-2 border-amber-500/40 max-w-sm mx-auto">
+          <div className="flex bg-slate-950 p-1.5 rounded-2xl border-2 border-amber-500/40 max-w-sm mx-auto">
             <button
               type="button"
               onClick={() => {
@@ -436,7 +436,7 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
               className={`flex-1 py-2 rounded-xl text-xs font-mono font-black transition-all cursor-pointer ${
                 authMode === 'REGISTER'
                   ? 'bg-amber-500 text-slate-950 shadow-md scale-102'
-                  : 'text-slate-300 hover:text-amber-300'
+                  : 'text-slate-400 hover:text-amber-300'
               }`}
             >
               [ + สมัครบัญชีนักสืบใหม่ ]
@@ -450,39 +450,39 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
               className={`flex-1 py-2 rounded-xl text-xs font-mono font-black transition-all cursor-pointer ${
                 authMode === 'LOGIN'
                   ? 'bg-amber-500 text-slate-950 shadow-md scale-102'
-                  : 'text-slate-300 hover:text-amber-300'
+                  : 'text-slate-400 hover:text-amber-300'
               }`}
             >
               [ 🔍 เข้าสู่ระบบนักสืบ ]
             </button>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 font-mono">
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-100 font-mono">
             {authMode === 'REGISTER' ? 'สร้างตัวตนนักสืบของคุณ' : 'ยินดีต้อนรับกลับสู่สำนักงานนักสืบ'}
           </h2>
 
-          <p className="text-xs text-slate-600 dark:text-slate-400 max-w-sm mx-auto">
+          <p className="text-xs text-slate-300 max-w-sm mx-auto">
             {authMode === 'REGISTER'
               ? 'CREATE YOUR DETECTIVE ACCOUNT: กำหนดฉายาและรหัสผ่านเพื่อเริ่มภารกิจ'
               : 'WELCOME BACK, DETECTIVE: ลงชื่อเข้าใช้ด้วย Username และ Password'}
           </p>
         </div>
 
-        {/* Privacy by Design Banner (Prominent & Clear) */}
-        <div className="p-3.5 rounded-2xl bg-amber-500/10 border-2 border-amber-500/30 text-xs space-y-1 text-slate-800 dark:text-slate-200 shadow-xs">
-          <div className="flex items-center space-x-2 text-amber-700 dark:text-amber-400 font-bold">
-            <Shield className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+        {/* Privacy by Design Banner */}
+        <div className="p-3.5 rounded-2xl bg-slate-950/80 border-2 border-amber-500/30 text-xs space-y-1 text-slate-300 shadow-xs">
+          <div className="flex items-center space-x-2 text-amber-400 font-bold">
+            <Shield className="w-4 h-4 text-emerald-400 shrink-0" />
             <span>🔒 มาตรการความเป็นส่วนตัว (Privacy by Design)</span>
           </div>
-          <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed pl-6">
+          <p className="text-[11px] text-slate-400 leading-relaxed pl-6">
             ไม่ต้องกรอกชื่อจริง นามสกุลจริง เลขบัตร หรือเบอร์โทรศัพท์ ระบบจะสร้าง <strong>Student ID</strong> อัตโนมัติสำหรับผูกคะแนนสะสมและผลการสืบคดี
           </p>
         </div>
 
         {/* Error Alert Box */}
         {errorMessage && (
-          <div className="p-3 rounded-2xl bg-rose-500/20 border-2 border-rose-500/40 text-rose-800 dark:text-rose-200 text-xs flex items-center space-x-2.5 font-bold animate-shake">
-            <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+          <div className="p-3 rounded-2xl bg-rose-500/20 border-2 border-rose-500/40 text-rose-300 text-xs flex items-center space-x-2.5 font-bold animate-shake">
+            <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
             <span>{errorMessage}</span>
           </div>
         )}
@@ -493,8 +493,8 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
             
             {/* 1. Nickname */}
             <div>
-              <label className="block text-xs font-bold text-slate-800 dark:text-slate-300 mb-1">
-                🕵️ ฉายานักสืบ / ชื่อเล่น (Nickname) <span className="text-rose-500">*</span>
+              <label className="block text-xs font-bold font-mono text-amber-300 mb-1.5">
+                🕵️ ฉายานักสืบ / ชื่อเล่น (Nickname) <span className="text-rose-400">*</span>
               </label>
               <input
                 type="text"
@@ -503,20 +503,20 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
                 value={regNickname}
                 onChange={(e) => setRegNickname(e.target.value)}
                 placeholder="เช่น ยอดนักสืบมิว, DARKFOX, ไดมอนด์"
-                className="w-full bg-white dark:bg-slate-850 border-2 border-amber-300 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 font-bold shadow-xs"
+                className="w-full bg-slate-950 border-2 border-slate-700 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 rounded-2xl px-4 py-3 text-sm font-mono font-bold text-slate-100 placeholder:text-slate-500 focus:outline-none transition-all shadow-inner"
               />
-              <span className="text-[10px] text-slate-500 block mt-1">
+              <span className="text-[10px] font-mono text-slate-400 block mt-1.5">
                 ชื่อหรือฉายานี้จะปรากฏในเกม กระดานหลักฐาน และตารางคะแนน
               </span>
             </div>
 
             {/* 2. Username */}
             <div>
-              <div className="flex justify-between items-center mb-1">
-                <label className="text-xs font-bold text-slate-800 dark:text-slate-300">
-                  👤 ชื่อผู้ใช้สำหรับเข้าสู่ระบบ (Username) <span className="text-rose-500">*</span>
+              <div className="flex justify-between items-center mb-1.5">
+                <label className="text-xs font-bold font-mono text-amber-300">
+                  👤 ชื่อผู้ใช้สำหรับเข้าสู่ระบบ (Username) <span className="text-rose-400">*</span>
                 </label>
-                <span className="text-[10px] font-mono text-slate-500">
+                <span className="text-[10px] font-mono text-slate-400">
                   {regUsername.length}/10 ตัวอักษร
                 </span>
               </div>
@@ -527,9 +527,9 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
                 value={regUsername}
                 onChange={(e) => setRegUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
                 placeholder="เช่น sherlock1, detective_m"
-                className="w-full bg-white dark:bg-slate-850 border-2 border-amber-300 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm font-mono font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 shadow-xs"
+                className="w-full bg-slate-950 border-2 border-slate-700 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 rounded-2xl px-4 py-3 text-sm font-mono font-bold text-slate-100 placeholder:text-slate-500 focus:outline-none transition-all shadow-inner"
               />
-              <span className="text-[10px] text-slate-500 block mt-1">
+              <span className="text-[10px] font-mono text-slate-400 block mt-1.5">
                 ภาษาอังกฤษหรือตัวเลข ไม่เกิน 10 ตัวอักษร (ห้ามมีเว้นวรรค)
               </span>
             </div>
@@ -537,11 +537,11 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
             {/* 3. Password & Confirm Password */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="text-xs font-bold text-slate-800 dark:text-slate-300">
-                    🔑 รหัสผ่าน (Password) <span className="text-rose-500">*</span>
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className="text-xs font-bold font-mono text-amber-300">
+                    🔑 รหัสผ่าน (Password) <span className="text-rose-400">*</span>
                   </label>
-                  <span className="text-[10px] font-mono text-slate-500">
+                  <span className="text-[10px] font-mono text-slate-400">
                     {regPassword.length}/8 ตัว
                   </span>
                 </div>
@@ -553,12 +553,12 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
                     value={regPassword}
                     onChange={(e) => setRegPassword(e.target.value)}
                     placeholder="สูงสุด 8 ตัวอักษร"
-                    className="w-full bg-white dark:bg-slate-850 border-2 border-amber-300 dark:border-slate-700 rounded-2xl px-4 py-2.5 pr-10 text-sm font-mono font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 shadow-xs"
+                    className="w-full bg-slate-950 border-2 border-slate-700 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 rounded-2xl px-4 py-2.5 pr-11 text-sm font-mono font-bold text-slate-100 placeholder:text-slate-500 focus:outline-none transition-all shadow-inner"
                   />
                   <button
                     type="button"
                     onClick={() => setShowRegPassword(!showRegPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-500 cursor-pointer"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-400 cursor-pointer p-1 transition-colors"
                   >
                     {showRegPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -566,9 +566,11 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-800 dark:text-slate-300 mb-1">
-                  🔑 ยืนยันรหัสผ่าน <span className="text-rose-500">*</span>
-                </label>
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className="text-xs font-bold font-mono text-amber-300">
+                    🔑 ยืนยันรหัสผ่าน <span className="text-rose-400">*</span>
+                  </label>
+                </div>
                 <input
                   type={showRegPassword ? 'text' : 'password'}
                   required
@@ -576,7 +578,7 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
                   value={regConfirmPassword}
                   onChange={(e) => setRegConfirmPassword(e.target.value)}
                   placeholder="กรอกรหัสผ่านอีกครั้ง"
-                  className="w-full bg-white dark:bg-slate-850 border-2 border-amber-300 dark:border-slate-700 rounded-2xl px-4 py-2.5 text-sm font-mono font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 shadow-xs"
+                  className="w-full bg-slate-950 border-2 border-slate-700 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 rounded-2xl px-4 py-2.5 text-sm font-mono font-bold text-slate-100 placeholder:text-slate-500 focus:outline-none transition-all shadow-inner"
                 />
               </div>
             </div>
@@ -600,7 +602,7 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
                   setAuthMode('LOGIN');
                   setErrorMessage(null);
                 }}
-                className="text-xs font-bold text-amber-700 dark:text-amber-400 hover:underline cursor-pointer"
+                className="text-xs font-bold font-mono text-amber-400 hover:text-amber-300 hover:underline cursor-pointer"
               >
                 มีบัญชีนักสืบอยู่แล้ว? เข้าสู่ระบบที่นี่
               </button>
@@ -614,7 +616,7 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
           <form onSubmit={handleLogin} className="space-y-4">
             
             <div>
-              <label className="block text-xs font-bold text-slate-800 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-bold font-mono text-amber-300 mb-1.5">
                 👤 ชื่อผู้ใช้ (Username)
               </label>
               <input
@@ -623,12 +625,12 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
                 value={loginUsername}
                 onChange={(e) => setLoginUsername(e.target.value)}
                 placeholder="กรอก Username ของคุณ"
-                className="w-full bg-white dark:bg-slate-850 border-2 border-amber-300 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm font-mono font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 shadow-xs"
+                className="w-full bg-slate-950 border-2 border-slate-700 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 rounded-2xl px-4 py-3 text-sm font-mono font-bold text-slate-100 placeholder:text-slate-500 focus:outline-none transition-all shadow-inner"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-800 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-bold font-mono text-amber-300 mb-1.5">
                 🔑 รหัสผ่าน (Password)
               </label>
               <div className="relative">
@@ -638,12 +640,12 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
                   placeholder="กรอกรหัสผ่าน"
-                  className="w-full bg-white dark:bg-slate-850 border-2 border-amber-300 dark:border-slate-700 rounded-2xl px-4 py-3 pr-10 text-sm font-mono font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 shadow-xs"
+                  className="w-full bg-slate-950 border-2 border-slate-700 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 rounded-2xl px-4 py-3 pr-11 text-sm font-mono font-bold text-slate-100 placeholder:text-slate-500 focus:outline-none transition-all shadow-inner"
                 />
                 <button
                   type="button"
                   onClick={() => setShowLoginPassword(!showLoginPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-500 cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-400 cursor-pointer p-1 transition-colors"
                 >
                   {showLoginPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -651,7 +653,7 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
             </div>
 
             {/* Teacher Help Box */}
-            <div className="bg-slate-950/40 p-3 rounded-xl border border-slate-700 text-[11px] text-slate-400 flex items-start space-x-2">
+            <div className="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 text-[11px] text-slate-400 flex items-start space-x-2">
               <HelpCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
               <span>
                 <strong>ลืมรหัสผ่าน?</strong> สามารถแจ้งคุณครูผู้สอนให้ช่วยตรวจสอบหรือรีเซ็ตรหัสผ่านได้ใน <strong>"โหมดคุณครู"</strong>
@@ -677,7 +679,7 @@ export const StudentModeScreen: React.FC<StudentModeScreenProps> = ({
                   setAuthMode('REGISTER');
                   setErrorMessage(null);
                 }}
-                className="text-xs font-bold text-amber-700 dark:text-amber-400 hover:underline cursor-pointer"
+                className="text-xs font-bold font-mono text-amber-400 hover:text-amber-300 hover:underline cursor-pointer"
               >
                 ยังไม่มีบัญชีนักสืบ? สมัครบัญชีใหม่ที่นี่
               </button>
