@@ -1,0 +1,6 @@
+{
+  "name": "SOURCE DETECTIVE",
+  "description": "เกมการเรียนรู้นักสืบข่าวสาร เพื่อพัฒนาทักษะการคิด วิเคราะห์ ตรวจสอบข้อมูล พร้อมระบบบันทึกคะแนนและประวัติการใช้งานลง Google Sheets สำหรับครู",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
