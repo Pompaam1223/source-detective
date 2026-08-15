@@ -72,47 +72,74 @@ export class TeacherAuthService {
         body: JSON.stringify({ code: accessCode.trim() })
       });
 
-      const data = await response.json();
+      const contentType = response.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        const data = await response.json();
 
-      if (response.ok && data.success && data.token) {
-        // Reset failed counter
-        this.clearFailedAttempts();
+        if (response.ok && data.success && data.token) {
+          // Reset failed counter
+          this.clearFailedAttempts();
 
-        const session: TeacherSession = {
-          token: data.token,
-          role: 'TEACHER',
-          authenticatedAt: new Date().toISOString(),
-          expiresAt: data.expiresAt || (Date.now() + 2 * 60 * 60 * 1000)
-        };
+          const session: TeacherSession = {
+            token: data.token,
+            role: 'TEACHER',
+            authenticatedAt: new Date().toISOString(),
+            expiresAt: data.expiresAt || (Date.now() + 2 * 60 * 60 * 1000)
+          };
 
-        // Save session
-        sessionStorage.setItem(TEACHER_SESSION_KEY, JSON.stringify(session));
+          // Save session
+          sessionStorage.setItem(TEACHER_SESSION_KEY, JSON.stringify(session));
 
-        return {
-          success: true,
-          token: data.token,
-          role: 'TEACHER',
-          expiresAt: session.expiresAt
-        };
+          return {
+            success: true,
+            token: data.token,
+            role: 'TEACHER',
+            expiresAt: session.expiresAt
+          };
+        }
+
+        if (response.status === 401 || response.status === 429) {
+          this.recordFailedAttempt();
+          return {
+            success: false,
+            error: data.error || 'รหัสไม่ถูกต้อง กรุณาลองใหม่',
+            locked: data.locked,
+            remainingSeconds: data.remainingSeconds
+          };
+        }
       }
+    } catch {
+      // Fetch failed or backend not reachable (e.g. static hosting on GitHub Pages)
+    }
 
-      // Record failed attempt
-      this.recordFailedAttempt();
-
-      return {
-        success: false,
-        error: data.error || 'รหัสไม่ถูกต้อง กรุณาลองใหม่',
-        locked: data.locked,
-        remainingSeconds: data.remainingSeconds
+    // 2. Static Hosting Fallback (GitHub Pages / Client-only mode)
+    const normalizedInput = accessCode.trim();
+    const VALID_CODES = ['TEACHER@SD2026', 'TEACHER-SD-2025', 'TEACHER2026', 'DETECTIVE_TEACHER_2025'];
+    if (VALID_CODES.includes(normalizedInput)) {
+      this.clearFailedAttempts();
+      const expiresAt = Date.now() + 2 * 60 * 60 * 1000;
+      const staticToken = `client_t_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+      const session: TeacherSession = {
+        token: staticToken,
+        role: 'TEACHER',
+        authenticatedAt: new Date().toISOString(),
+        expiresAt
       };
-    } catch (err) {
-      // Fallback in case of temporary network glitch or offline sandbox
-      this.recordFailedAttempt();
+      sessionStorage.setItem(TEACHER_SESSION_KEY, JSON.stringify(session));
       return {
-        success: false,
-        error: 'รหัสไม่ถูกต้อง กรุณาลองใหม่'
+        success: true,
+        token: staticToken,
+        role: 'TEACHER',
+        expiresAt
       };
     }
+
+    // Record failed attempt
+    this.recordFailedAttempt();
+    return {
+      success: false,
+      error: 'รหัสไม่ถูกต้อง กรุณาลองใหม่'
+    };
   }
 
   /**
