@@ -1,0 +1,21 @@
+variable_name,label,data_type,measurement_level,allowed_values,missing_value,source,derivation_rule
+student_id,Student Identifier,String,Nominal,SD-XXXXX,NOT_AVAILABLE,students.studentId,Unique Pseudonymized Key
+alias,Student Persona Alias,String,Nominal,Text,NOT_AVAILABLE,students.nickname,Self-Selected Avatar Callout
+pre_total,Pre-Test Total Score,Numeric,Scale,0.00 - 40.00,NOT_AVAILABLE,assessments.baseline.score,Direct Assessment Sum
+post_total,Post-Test Total Score,Numeric,Scale,0.00 - 40.00,NOT_AVAILABLE,assessments.post_test.score,Direct Assessment Sum
+raw_gain,Absolute Raw Score Gain,Numeric,Scale,-40.00 - +40.00,NOT_AVAILABLE,Derived (Post - Pre),post_total - pre_total
+normalized_gain,Normalized Learning Gain (g),Numeric,Scale,0.0000 - 1.0000,NOT_AVAILABLE,Derived (Hake 1998),(post_total - pre_total) / (40 - pre_total)
+M1_total,Mission 1 Total Score,Numeric,Scale,0.00 - 40.00,NOT_AVAILABLE,mission_results.m1.score,Formative Module Sum
+M2_total,Mission 2 Total Score,Numeric,Scale,0.00 - 40.00,NOT_AVAILABLE,mission_results.m2.score,Formative Module Sum
+M3_total,Mission 3 Total Score,Numeric,Scale,0.00 - 40.00,NOT_AVAILABLE,mission_results.m3.score,Formative Module Sum
+M4_total,Mission 4 Total Score,Numeric,Scale,0.00 - 40.00,NOT_AVAILABLE,mission_results.m4.score,Formative Module Sum
+total_missions,Total Formative Missions Score,Numeric,Scale,0.00 - 160.00,NOT_AVAILABLE,Derived (M1+M2+M3+M4),M1_total + M2_total + M3_total + M4_total
+total_system,Total System Score,Numeric,Scale,0.00 - 240.00,NOT_AVAILABLE,progress.totalPoints,pre_total + total_missions + post_total
+T1_T4,Domain THINK Mastery,Numeric,Scale,0.00 - 1.00,NOT_AVAILABLE,assessments.domainScores.THINK,Ratio of Correct Analytical Items
+C1_C4,Domain CHECK Mastery,Numeric,Scale,0.00 - 1.00,NOT_AVAILABLE,assessments.domainScores.CHECK,Ratio of Correct Verification Items
+S1_S4,Domain SOLVE Mastery,Numeric,Scale,0.00 - 1.00,NOT_AVAILABLE,assessments.domainScores.SOLVE,Ratio of Correct Problem-Solving Items
+E1_E4,Domain EXPLAIN Mastery,Numeric,Scale,0.00 - 1.00,NOT_AVAILABLE,assessments.domainScores.EXPLAIN,Ratio of Correct Reasoned Items
+G1_G4,Domain GROW Mastery,Numeric,Scale,0.00 - 1.00,NOT_AVAILABLE,assessments.domainScores.GROW,Ratio of Correct Reflection Items
+AI_usage_total,Total AI Socratic Queries,Numeric,Scale,0 - 100,NOT_AVAILABLE,ai_logs.aiQueryCount,Sum of Socratic Prompts
+evidence_total,Total Evidence Pieces in Locker,Numeric,Scale,0 - 100,NOT_AVAILABLE,evidences collection,Count of User Submitted Evidences
+attempt_total,Total Item Attempt Logs,Numeric,Scale,0 - 100,NOT_AVAILABLE,attempts collection,Count of Discrete Attempts

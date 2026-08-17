@@ -3,7 +3,8 @@ import { TeacherPanel } from '../components/TeacherPanel';
 import { TeacherAccessGate } from '../components/TeacherAccessGate';
 import { TeacherAuthService } from '../services/TeacherAuthService';
 import { AppScreen } from '../types';
-import { GraduationCap, ArrowLeft, LogOut, ShieldCheck, Clock } from 'lucide-react';
+import { GraduationCap, ArrowLeft, LogOut, ShieldCheck, Clock, FileSpreadsheet } from 'lucide-react';
+import { TeacherQuickStartPoster } from '../components/TeacherQuickStartPoster';
 
 interface TeacherModeScreenProps {
   onNavigate: (screen: AppScreen) => void;
@@ -12,6 +13,7 @@ interface TeacherModeScreenProps {
 export const TeacherModeScreen: React.FC<TeacherModeScreenProps> = ({ onNavigate }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => TeacherAuthService.isAuthenticated());
   const [refreshKey, setRefreshKey] = useState(0);
+  const [isPosterOpen, setIsPosterOpen] = useState(false);
   const [sessionExpiry, setSessionExpiry] = useState<string | null>(() => {
     const session = TeacherAuthService.getSession();
     return session ? new Date(session.expiresAt).toLocaleTimeString('th-TH') : null;
@@ -69,6 +71,15 @@ export const TeacherModeScreen: React.FC<TeacherModeScreenProps> = ({ onNavigate
         </button>
 
         <div className="flex flex-wrap items-center gap-2.5">
+          <button
+            onClick={() => setIsPosterOpen(true)}
+            className="text-xs font-bold text-emerald-300 hover:text-white bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 px-3 py-1 rounded-xl flex items-center space-x-1.5 transition-all shadow-xs cursor-pointer"
+            title="เปิดโปสเตอร์คู่มือครูและงานวิจัย (Printable Poster)"
+          >
+            <span className="text-xs">📊</span>
+            <span>โปสเตอร์คู่มือครู</span>
+          </button>
+
           <span className="text-xs font-mono font-bold bg-teal-500/20 text-teal-300 px-3 py-1 rounded-full border border-teal-500/30 flex items-center space-x-1.5">
             <ShieldCheck className="w-3.5 h-3.5 text-teal-400" />
             <span>TEACHER SESSION ACTIVE</span>
@@ -94,6 +105,12 @@ export const TeacherModeScreen: React.FC<TeacherModeScreenProps> = ({ onNavigate
 
       {/* Main Teacher Panel */}
       <TeacherPanel />
+
+      {/* Teacher Quick Start Poster Modal */}
+      <TeacherQuickStartPoster
+        isOpen={isPosterOpen}
+        onClose={() => setIsPosterOpen(false)}
+      />
 
     </div>
   );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, ShieldAlert, Sparkles, FolderKanban, GraduationCap, CheckCircle2, ArrowRight, Lightbulb, Compass, Award } from 'lucide-react';
+import { Search, ShieldAlert, Sparkles, FolderKanban, GraduationCap, CheckCircle2, ArrowRight, Lightbulb, Compass, Award, BookOpen } from 'lucide-react';
 import { AppScreen } from '../types';
 import { COMPETENCY_DOMAINS } from '../data/indicators';
 import {
@@ -14,9 +14,11 @@ import { PushPin, TapeSticker, PawPrint, GoldenMagnifierBadge } from '../compone
 
 interface HomeScreenProps {
   onNavigate: (screen: AppScreen) => void;
+  onOpenPoster?: () => void;
+  onOpenTeacherPoster?: () => void;
 }
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
+export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, onOpenPoster, onOpenTeacherPoster }) => {
   return (
     <div className="space-y-10 py-4">
       
@@ -85,6 +87,26 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
                 <Award className="w-5 h-5" />
                 <span>[ดูผลคะแนน & ใบรับรอง]</span>
               </button>
+
+              {onOpenPoster && (
+                <button
+                  onClick={onOpenPoster}
+                  className="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border-2 border-amber-500/50 font-bold text-base px-5 py-3.5 rounded-2xl shadow-lg flex items-center space-x-2 cursor-pointer transition-all active:scale-95"
+                >
+                  <span className="text-lg">📜</span>
+                  <span>[ โปสเตอร์คู่มือนักเรียน ]</span>
+                </button>
+              )}
+
+              {onOpenTeacherPoster && (
+                <button
+                  onClick={onOpenTeacherPoster}
+                  className="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border-2 border-emerald-500/50 font-bold text-base px-5 py-3.5 rounded-2xl shadow-lg flex items-center space-x-2 cursor-pointer transition-all active:scale-95"
+                >
+                  <span className="text-lg">📊</span>
+                  <span>[ โปสเตอร์คู่มือครู ]</span>
+                </button>
+              )}
 
               <button
                 onClick={() => onNavigate('TEACHER_MODE')}

@@ -1,0 +1,11 @@
+student_id,alias,baseline_score,post_score,raw_gain,calculated_normalized_gain,hake_interpretation,validation_status
+SD-2ETP3,Radar,24,40,16,1,HIGH_GAIN (g >= 0.70),PASS
+SD-2FJTN,Petch,25,40,15,1,HIGH_GAIN (g >= 0.70),PASS
+SD-68QME,Max,26,36,10,0.7143,HIGH_GAIN (g >= 0.70),PASS
+SD-88H7G,ภูมิ,31,40,9,1,HIGH_GAIN (g >= 0.70),PASS
+SD-AXTTJ,Tectid,32,40,8,1,HIGH_GAIN (g >= 0.70),PASS
+SD-C3JUV,Andrey,32,40,8,1,HIGH_GAIN (g >= 0.70),PASS
+SD-HJF6X,ข้าว,26,40,14,1,HIGH_GAIN (g >= 0.70),PASS
+SD-JCC9U,Fino,25,40,15,1,HIGH_GAIN (g >= 0.70),PASS
+SD-PLTRN,Snack,23,36,13,0.7647,HIGH_GAIN (g >= 0.70),PASS
+SD-XDLM6,Ilrey,32,40,8,1,HIGH_GAIN (g >= 0.70),PASS

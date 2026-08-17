@@ -1,0 +1,26 @@
+variable_name,variable_label,data_type,measurement_level,possible_range,missing_value,description,scoring_method
+student_id,รหัสประจำตัวนักเรียน,String,Nominal,SD-XXXXX,NA,Anonymized Unique Student Identifier,System Generated Hash
+alias,ฉายานักเรียน,String,Nominal,Text,NA,Student Chosen Persona Alias,Direct Input
+baseline_score,คะแนนแบบวัดก่อนเรียน (Pre-test),Numeric,Scale,0.00 - 40.00,NA,Baseline Assessment Score (10 Items),Sum of Raw Item Scores
+mission1_score,คะแนนภารกิจที่ 1 (M1),Numeric,Scale,0.00 - 40.00,NA,Formative Mission 1 Score (16 Items),Inquiry & Source Verification Scoring
+mission2_score,คะแนนภารกิจที่ 2 (M2),Numeric,Scale,0.00 - 40.00,NA,Formative Mission 2 Score (16 Items),Evidence Corroboration Scoring
+mission3_score,คะแนนภารกิจที่ 3 (M3),Numeric,Scale,0.00 - 40.00,NA,Formative Mission 3 Score (16 Items),Cross-Source Triangulation Scoring
+mission4_score,คะแนนภารกิจที่ 4 (M4),Numeric,Scale,0.00 - 40.00,NA,Formative Mission 4 Score (16 Items),Pre-Share Decision Making Scoring
+post_score,คะแนนแบบวัดหลังเรียน (Post-test),Numeric,Scale,0.00 - 40.00,NA,Post-Test Assessment Score (10 Items),Sum of Raw Item Scores
+total_mission_score,คะแนนรวม 4 ภารกิจ,Numeric,Scale,0.00 - 160.00,NA,Sum of M1 + M2 + M3 + M4 Scores,M1 + M2 + M3 + M4
+total_system_score,คะแนนรวมตลอดกระบวนการ,Numeric,Scale,0.00 - 240.00,NA,Total Comprehensive Score,Baseline + Missions + Post-Test
+raw_gain,คะแนนพัฒนาการสัมบูรณ์ (Raw Gain),Numeric,Scale,-40.00 to +40.00,NA,Absolute Score Gain,Post-Test Score - Baseline Score
+normalized_gain_individual,อัตราการพัฒนาการเรียนรู้สัมพัทธ์ (g),Numeric,Scale,0.0000 - 1.0000,NA,Hake (1998) Normalized Gain,(Post - Pre) / (40 - Pre)
+think_pre,โดเมน THINK ก่อนเรียน,Numeric,Scale,0.00 - 1.00,NA,Analytical Thinking Pre-Ratio,Domain Accuracy Ratio
+check_pre,โดเมน CHECK ก่อนเรียน,Numeric,Scale,0.00 - 1.00,NA,Verification Pre-Ratio,Domain Accuracy Ratio
+solve_pre,โดเมน SOLVE ก่อนเรียน,Numeric,Scale,0.00 - 1.00,NA,Problem Solving Pre-Ratio,Domain Accuracy Ratio
+explain_pre,โดเมน EXPLAIN ก่อนเรียน,Numeric,Scale,0.00 - 1.00,NA,Reasoned Explanation Pre-Ratio,Domain Accuracy Ratio
+grow_pre,โดเมน GROW ก่อนเรียน,Numeric,Scale,0.00 - 1.00,NA,Growth Mindset Pre-Ratio,Domain Accuracy Ratio
+think_post,โดเมน THINK หลังเรียน,Numeric,Scale,0.00 - 1.00,NA,Analytical Thinking Post-Ratio,Domain Accuracy Ratio
+check_post,โดเมน CHECK หลังเรียน,Numeric,Scale,0.00 - 1.00,NA,Verification Post-Ratio,Domain Accuracy Ratio
+solve_post,โดเมน SOLVE หลังเรียน,Numeric,Scale,0.00 - 1.00,NA,Problem Solving Post-Ratio,Domain Accuracy Ratio
+explain_post,โดเมน EXPLAIN หลังเรียน,Numeric,Scale,0.00 - 1.00,NA,Reasoned Explanation Post-Ratio,Domain Accuracy Ratio
+grow_post,โดเมน GROW หลังเรียน,Numeric,Scale,0.00 - 1.00,NA,Growth Mindset Post-Ratio,Domain Accuracy Ratio
+evidence_count,จำนวนหลักฐานใน Evidence Locker,Numeric,Scale,0 - 100,NA,Total Verified Evidence Pieces,Count of Evidence Documents
+ai_queries_count,จำนวนคำถามสืบค้น AI Helper,Numeric,Scale,0 - 100,NA,Total Socratic Prompts Sent to AI,Count of Query Instances
+completion_status,สถานะความสมบูรณ์ในการเรียน,String,Nominal,FULLY_COMPLETED,NA,Overall Curriculum Completion,Verification of All 6 Stages

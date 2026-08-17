@@ -1,0 +1,14 @@
+audit_category,target_scope,expected_count,actual_count,discrepancy,status,forensic_note
+Target Students,M.1 Cohort,10,10,0,PASS,Exact 10 active student accounts verified.
+Baseline Assessments,Pre-Test,10,10,0,PASS,10/10 Baseline records present.
+Mission 1 Results,M1 Formative,10,10,0,PASS,10/10 M1 records present.
+Mission 2 Results,M2 Formative,10,10,0,PASS,10/10 M2 records present.
+Mission 3 Results,M3 Formative,10,10,0,PASS,10/10 M3 records present.
+Mission 4 Results,M4 Formative,10,10,0,PASS,10/10 M4 records present.
+Post-Test Assessments,Post-Test,10,10,0,PASS,10/10 Post-Test records present.
+Total Question Instances,84 Questions x 10 Students,840,840,0,PASS,Complete 840 question-level rows audited.
+Score Consistency Check,240 Max Points Integrity,10,10,0,PASS,10/10 students exhibit 100% mathematical match.
+Raw Gain Calculations,Post - Baseline,10,10,0,PASS,10/10 students have valid positive gain.
+Normalized Gain Range,0.0000 - 1.0000,10,10,0,PASS,All students in High Gain range (0.7143 - 1.0000).
+Evidence Documents,Locker Records,>= 15,30,0,PASS,30 evidence pieces tracked with source provenance.
+AI Usage Logs,Socratic History,10,10,0,PASS,10/10 AI logs retrieved with prompt telemetry.

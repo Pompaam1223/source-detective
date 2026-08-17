@@ -1,0 +1,13 @@
+target_variable,source_collection,source_field,transformation_rule,validation_status
+baseline_score,assessments,score (type==BASELINE),Direct retrieval of pre-test sum,VALIDATED
+post_score,assessments,score (type==POST_TEST),Direct retrieval of post-test sum,VALIDATED
+mission1_score,mission_results,score (missionId==m1),Direct retrieval of M1 formative score,VALIDATED
+mission2_score,mission_results,score (missionId==m2),Direct retrieval of M2 formative score,VALIDATED
+mission3_score,mission_results,score (missionId==m3),Direct retrieval of M3 formative score,VALIDATED
+mission4_score,mission_results,score (missionId==m4),Direct retrieval of M4 formative score,VALIDATED
+total_mission_score,mission_results,m1 + m2 + m3 + m4,Arithmetic sum of 4 formative missions,VALIDATED
+total_system_score,progress / computed,baseline + missions + post,Full curriculum score summation,VALIDATED
+raw_gain,assessments,post_score - baseline_score,Absolute competency improvement,VALIDATED
+normalized_gain,assessments,(post - pre) / (40 - pre),Hake (1998) normalized learning gain,VALIDATED
+ai_query_count,ai_logs,aiQueryCount / aiQueries.length,Count of Socratic inquiries sent,VALIDATED
+evidence_count,evidences,document count per studentId,Count of gathered evidentiary items,VALIDATED

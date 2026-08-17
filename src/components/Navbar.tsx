@@ -8,13 +8,17 @@ interface NavbarProps {
   onNavigate: (screen: AppScreen) => void;
   currentStudent: Student | null;
   isPostTestInProgress?: boolean;
+  onOpenPoster?: () => void;
+  onOpenTeacherPoster?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   currentScreen,
   onNavigate,
   currentStudent,
-  isPostTestInProgress = false
+  isPostTestInProgress = false,
+  onOpenPoster,
+  onOpenTeacherPoster
 }) => {
   return (
     <header className="sticky top-0 z-50 bg-gradient-to-r from-slate-950 via-slate-900 to-amber-950/80 text-slate-100 border-b-2 border-amber-500/40 shadow-xl backdrop-blur-md">
@@ -109,6 +113,28 @@ export const Navbar: React.FC<NavbarProps> = ({
               <BarChart3 className="w-3.5 h-3.5" />
               <span>ดูผลคะแนน</span>
             </button>
+
+            {onOpenPoster && (
+              <button
+                onClick={onOpenPoster}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer bg-gradient-to-r from-amber-500/20 to-amber-600/20 hover:from-amber-500/30 hover:to-amber-600/30 text-amber-300 border border-amber-500/40 shadow-sm"
+                title="เปิดโปสเตอร์คู่มือนักเรียน (Student Quick Start Poster)"
+              >
+                <span className="text-xs">📜</span>
+                <span>คู่มือนักเรียน</span>
+              </button>
+            )}
+
+            {onOpenTeacherPoster && (
+              <button
+                onClick={onOpenTeacherPoster}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 hover:from-emerald-500/30 hover:to-emerald-600/30 text-emerald-300 border border-emerald-500/40 shadow-sm"
+                title="เปิดโปสเตอร์คู่มือครูและนักวิจัย (Teacher Quick Start Poster)"
+              >
+                <span className="text-xs">📊</span>
+                <span>คู่มือครู</span>
+              </button>
+            )}
 
             <button
               onClick={() => onNavigate('TEACHER_MODE')}

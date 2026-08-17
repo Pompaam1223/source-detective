@@ -1,0 +1,11 @@
+student_id,alias,baseline_score,mission1_score,mission2_score,mission3_score,mission4_score,post_score,total_mission_score,total_system_score,raw_gain,normalized_gain_individual,think_pre,check_pre,solve_pre,explain_pre,grow_pre,think_post,check_post,solve_post,explain_post,grow_post,evidence_count,ai_queries_count,completion_status
+SD-2ETP3,Radar,24,34,36,38,38,40,146,210,16,1,0.8,0.3,1,0.5,0.8,1,1,1,1,1,7,1,FULLY_COMPLETED
+SD-2FJTN,Petch,25,36,38,35,38,40,147,212,15,1,0.8,0.7,1,0.5,0.4,1,1,1,1,1,7,0,FULLY_COMPLETED
+SD-68QME,Max,26,34,38,36,38,36,146,208,10,0.7143,0.8,0.3,1,0.5,1,1,0.7,1,1,1,6,4,FULLY_COMPLETED
+SD-88H7G,ภูมิ,31,37,40,38,36.5,40,151.5,222.5,9,1,1,0.7,1,1,0.4,1,1,1,1,1,1,0,FULLY_COMPLETED
+SD-AXTTJ,Tectid,32,35,38,39,36.5,40,148.5,220.5,8,1,0.5,1,1,0.5,1,1,1,1,1,1,1,0,FULLY_COMPLETED
+SD-C3JUV,Andrey,32,34,40,34,36.5,40,144.5,216.5,8,1,0.5,1,1,1,0.5,1,1,1,1,1,1,0,FULLY_COMPLETED
+SD-HJF6X,ข้าว,26,37,38,39,40,40,154,220,14,1,0.5,1,1,0.5,0.3,1,1,1,1,1,2,2,FULLY_COMPLETED
+SD-JCC9U,Fino,25,36,38,40,38,40,152,217,15,1,0.3,1,1,0,0.9,1,1,1,1,1,1,0,FULLY_COMPLETED
+SD-PLTRN,Snack,23,35,35,34,34.5,36,138.5,197.5,13,0.7647,0.5,0.3,1,0.5,0.9,0.5,1,1,1,1,2,4,FULLY_COMPLETED
+SD-XDLM6,Ilrey,32,35,37,36,38.5,40,146.5,218.5,8,1,0.5,1,1,0.5,1,1,1,1,1,1,2,0,FULLY_COMPLETED

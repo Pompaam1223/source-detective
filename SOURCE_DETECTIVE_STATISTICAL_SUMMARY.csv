@@ -1,0 +1,12 @@
+variable,N,mean,median,min,max,sd,max_possible,percentage_mean
+baseline_score,10,27.6,26,23,32,3.6878,40,69.00%
+mission1_score,10,35.3,35,34,37,1.1595,40,88.25%
+mission2_score,10,37.8,38,35,40,1.5492,40,94.50%
+mission3_score,10,36.9,37,34,40,2.1833,40,92.25%
+mission4_score,10,37.45,38,34.5,40,1.4991,40,93.63%
+post_score,10,39.2,40,36,40,1.6865,40,98.00%
+total_mission_score,10,147.45,146.75,138.5,154,4.4124,160,92.16%
+total_system_score,10,214.25,216.75,197.5,222.5,7.5544,240,89.27%
+raw_gain,10,11.6,11.5,8,16,3.3066,40,29.00%
+individual_normalized_gain,10,0.9479,1,0.7143,1,0.1105,1,94.79%
+group_normalized_gain,10,0.9355,NA,NA,NA,NA,1,93.55%

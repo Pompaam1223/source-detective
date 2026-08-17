@@ -12,6 +12,8 @@ import { TeacherModeScreen } from './screens/TeacherModeScreen';
 import { EvidencePreviewScreen } from './screens/EvidencePreviewScreen';
 import { ScoreReportScreen } from './screens/ScoreReportScreen';
 import { AIHelperFloating } from './components/AIHelperFloating';
+import { StudentQuickStartPoster } from './components/StudentQuickStartPoster';
+import { TeacherQuickStartPoster } from './components/TeacherQuickStartPoster';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<AppScreen>('HOME');
@@ -20,6 +22,8 @@ export default function App() {
   const [activeQuestion, setActiveQuestion] = useState<Question | null>(null);
   const [assessmentType, setAssessmentType] = useState<'BASELINE' | 'POST_TEST'>('BASELINE');
   const [latestAssessmentResult, setLatestAssessmentResult] = useState<AssessmentResult | null>(null);
+  const [isPosterOpen, setIsPosterOpen] = useState<boolean>(false);
+  const [isTeacherPosterOpen, setIsTeacherPosterOpen] = useState<boolean>(false);
 
   // Load student & handle URL hash routing on init
   useEffect(() => {
@@ -43,6 +47,16 @@ export default function App() {
         setCurrentScreen('STUDENT_MODE');
       }
     };
+
+    // Auto seed initial evidence dataset if empty
+    try {
+      const existingEvs = StorageService.getAllStudentEvidences();
+      if (existingEvs.length === 0) {
+        StorageService.seedComprehensiveEvidences();
+      }
+    } catch {
+      // Ignore initial seed error
+    }
 
     handleHashChange();
     window.addEventListener('hashchange', handleHashChange);
@@ -107,13 +121,19 @@ export default function App() {
         onNavigate={handleNavigate}
         currentStudent={currentStudent}
         isPostTestInProgress={currentScreen === 'ASSESSMENT' && assessmentType === 'POST_TEST'}
+        onOpenPoster={() => setIsPosterOpen(true)}
+        onOpenTeacherPoster={() => setIsTeacherPosterOpen(true)}
       />
 
       {/* Main Screen Container */}
       <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1">
         
         {currentScreen === 'HOME' && (
-          <HomeScreen onNavigate={handleNavigate} />
+          <HomeScreen 
+            onNavigate={handleNavigate} 
+            onOpenPoster={() => setIsPosterOpen(true)}
+            onOpenTeacherPoster={() => setIsTeacherPosterOpen(true)} 
+          />
         )}
 
         {currentScreen === 'STUDENT_MODE' && (
@@ -201,6 +221,18 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* Student Quick Start Guide Poster Modal */}
+      <StudentQuickStartPoster
+        isOpen={isPosterOpen}
+        onClose={() => setIsPosterOpen(false)}
+      />
+
+      {/* Teacher Quick Start Guide Poster Modal */}
+      <TeacherQuickStartPoster
+        isOpen={isTeacherPosterOpen}
+        onClose={() => setIsTeacherPosterOpen(false)}
+      />
 
     </div>
   );

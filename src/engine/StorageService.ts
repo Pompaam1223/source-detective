@@ -663,12 +663,44 @@ export class StorageService {
   }
 
   static getAllStudentEvidences(): Evidence[] {
-    const students = this.getAllStudents();
     const all: Evidence[] = [];
+    const seenIds = new Set<string>();
+
+    // 1. Collect from known students
+    const students = this.getAllStudents();
     students.forEach(s => {
       const evs = this.getEvidences(s.studentId);
-      all.push(...evs);
+      evs.forEach(e => {
+        if (!seenIds.has(e.id)) {
+          seenIds.add(e.id);
+          all.push(e);
+        }
+      });
     });
+
+    // 2. Also scan any evidence keys in localStorage directly to prevent data loss
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(STORAGE_KEYS.EVIDENCES)) {
+          const raw = localStorage.getItem(key);
+          if (raw) {
+            const parsed: Evidence[] = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+              parsed.forEach(e => {
+                if (e && e.id && !seenIds.has(e.id)) {
+                  seenIds.add(e.id);
+                  all.push(e);
+                }
+              });
+            }
+          }
+        }
+      }
+    } catch {
+      // Ignore scan error
+    }
+
     return all;
   }
 
@@ -860,58 +892,291 @@ export class StorageService {
   }
 
   // --- Demo Seeding & Data Reset ---
-  static seedDemoData(): void {
-    const demoStudent: Student = {
-      studentId: 'std_demo_001',
-      firstName: 'สมชาย',
-      lastName: 'ใจดี',
-      studentNumber: '101',
-      gradeLevel: 'ห้อง 2',
-      registeredAt: new Date().toISOString()
-    };
-    this.saveStudent(demoStudent);
+  static seedComprehensiveEvidences(): Evidence[] {
+    // 1. Ensure we have representative students
+    let students = this.getAllStudents();
+    if (students.length === 0) {
+      const sampleStudents: Student[] = [
+        {
+          studentId: 'std_demo_001',
+          firstName: 'สมชาย',
+          lastName: 'ใจดี',
+          nickname: 'นักสืบชาย',
+          studentNumber: '01',
+          gradeLevel: 'ม.2/1',
+          registeredAt: new Date(Date.now() - 3600000 * 24 * 3).toISOString()
+        },
+        {
+          studentId: 'std_demo_002',
+          firstName: 'กานดา',
+          lastName: 'สุขใจ',
+          nickname: 'นักสืบกานดา',
+          studentNumber: '02',
+          gradeLevel: 'ม.2/1',
+          registeredAt: new Date(Date.now() - 3600000 * 24 * 2).toISOString()
+        },
+        {
+          studentId: 'std_demo_003',
+          firstName: 'ธนพล',
+          lastName: 'มุ่งมั่น',
+          nickname: 'นักสืบพล',
+          studentNumber: '03',
+          gradeLevel: 'ม.2/2',
+          registeredAt: new Date(Date.now() - 3600000 * 24 * 1).toISOString()
+        }
+      ];
+      sampleStudents.forEach(s => this.saveStudent(s));
+      students = sampleStudents;
+    }
 
-    const demoProgress: StudentProgress = {
-      studentId: demoStudent.studentId,
-      totalPoints: 28,
-      maxPossiblePoints: 200,
-      completedMissionIds: ['m1', 'm2'],
-      baselineStatus: 'COMPLETED',
-      postTestStatus: 'NOT_STARTED',
-      baselineScore: 22,
-      lastUpdated: new Date().toISOString()
-    };
-    this.saveProgress(demoProgress);
+    const s1 = students[0].studentId;
+    const s2 = students[1] ? students[1].studentId : s1;
+    const s3 = students[2] ? students[2].studentId : s1;
 
-    const demoEvidences: Evidence[] = [
+    const sampleEvidences: Evidence[] = [
+      // --- Mission 1 (ข่าวลือปิดโรงเรียน) ---
       {
-        id: 'ev_001',
-        studentId: demoStudent.studentId,
+        id: `ev_m1_${Date.now()}_01`,
+        studentId: s1,
         missionId: 'm1',
         questionId: 'q1_single',
         indicatorId: 'T1',
         type: 'AUTHOR',
-        title: 'ตรวจสอบผู้ส่งสาร',
-        content: 'พบข้อความไร้ชื่อผู้ส่งสาร ถูกแชร์ในกลุ่มไลน์ สร้างความเข้าใจผิดเกี่ยวกับการหยุดเรียน',
-        sourceTag: 'Line Group Chat',
+        title: 'SC01: ตรวจสอบผู้ส่งสารในแชทกลุ่มไลน์',
+        content: 'พบข้อความส่งต่อ "ด่วนที่สุด! โรงเรียนจะสั่งปิด 1 สัปดาห์" จากผู้ใช้ไม่ระบุชื่อชัดเจนและไม่มีตราประทับทางการของโรงเรียน',
+        sourceTag: 'Line Group Chat - ข่าวสารห้อง ม.2',
+        score: 10,
+        maxScore: 10,
         isVerified: true,
-        timestamp: new Date().toISOString()
+        timestamp: new Date(Date.now() - 3600000 * 18).toISOString()
       },
       {
-        id: 'ev_002',
-        studentId: demoStudent.studentId,
+        id: `ev_m1_${Date.now()}_02`,
+        studentId: s1,
+        missionId: 'm1',
+        questionId: 'q2_date',
+        indicatorId: 'T2',
+        type: 'DATE',
+        title: 'SC02: ตรวจสอบวันที่ในภาพประกาศที่ถูกแชร์',
+        content: 'พบว่าประกาศที่ถูกส่งต่อเป็นเอกสารเก่าของปีการศึกษา 2566 นำมาแชร์ซ้ำทำให้เกิดความเข้าใจผิดว่าเกิดขึ้นในสัปดาห์นี้',
+        sourceTag: 'Facebook School Page Archive',
+        score: 10,
+        maxScore: 10,
+        isVerified: true,
+        timestamp: new Date(Date.now() - 3600000 * 17).toISOString()
+      },
+      {
+        id: `ev_m1_${Date.now()}_03`,
+        studentId: s2,
+        missionId: 'm1',
+        questionId: 'q3_compare',
+        indicatorId: 'T3',
+        type: 'COMPARISON',
+        title: 'SC03: เปรียบเทียบแถลงการณ์บนเว็บไซต์ทางการ',
+        content: 'ตรวจสอบเทียบกับเว็บไซต์ทางการของโรงเรียน พบประกาศยืนยันว่า "จัดการเรียนการสอนตามปกติ ไม่มีการสั่งปิดโรงเรียนแต่อย่างใด"',
+        sourceTag: 'www.school.ac.th/official-announcement',
+        score: 10,
+        maxScore: 10,
+        isVerified: true,
+        timestamp: new Date(Date.now() - 3600000 * 16).toISOString()
+      },
+      {
+        id: `ev_m1_${Date.now()}_04`,
+        studentId: s2,
+        missionId: 'm1',
+        questionId: 'q4_decision',
+        indicatorId: 'T4',
+        type: 'DECISION',
+        title: 'สรุปสำนวนคดีข่าวลือปิดโรงเรียน (Case Verdict M1)',
+        content: 'ข่าวลือเรื่องการปิดโรงเรียนเป็น "ข่าวปลอม (Fake News)" ที่เกิดจากการนำรูปภาพเก่ามาตัดต่อและกระจายต่อเพื่อเรียกยอดแชร์ในกลุ่มแชท',
+        sourceTag: 'Detective Final Report M1',
+        score: 10,
+        maxScore: 10,
+        isVerified: true,
+        timestamp: new Date(Date.now() - 3600000 * 15).toISOString()
+      },
+
+      // --- Mission 2 (น้ำวิเศษปราบมะเร็ง) ---
+      {
+        id: `ev_m2_${Date.now()}_01`,
+        studentId: s1,
         missionId: 'm2',
-        questionId: 'q5_evidence',
-        indicatorId: 'C3',
+        questionId: 'q5_claim',
+        indicatorId: 'C1',
+        type: 'CLAIM',
+        title: 'SC04: วิเคราะห์ข้ออ้างสรรพคุณเกินจริง',
+        content: 'โฆษณาอ้างว่า "น้ำหมักชีวภาพสูตรพิเศษดื่มแล้วรักษามะเร็งหายขาดภายใน 3 วัน" ซึ่งขัดกับหลักการแพทย์และไม่มีผลการทดลองทางคลินิกรองรับ',
+        sourceTag: 'TikTok Viral Health Video Clip',
+        score: 10,
+        maxScore: 10,
+        isVerified: true,
+        timestamp: new Date(Date.now() - 3600000 * 12).toISOString()
+      },
+      {
+        id: `ev_m2_${Date.now()}_02`,
+        studentId: s2,
+        missionId: 'm2',
+        questionId: 'q6_fda',
+        indicatorId: 'C2',
         type: 'SOURCE',
-        title: 'เปรียบเทียบเอกสารราชการ',
-        content: 'บันทึกการประชุมโรงเรียนยืนยันว่าไม่มีการทุบสนามฟุตบอลเพื่อสร้างอาคารจอดรถ',
-        sourceTag: 'Official School Board',
+        title: 'SC05: ตรวจสอบเลข อย. ในฐานข้อมูลระบบสารสนเทศ',
+        content: 'ค้นหาเลขที่จดแจ้ง อย. ในระบบ e-Submission ของสำนักงานคณะกรรมการอาหารและยา พบว่าเป็นเลขปลอมที่สวมรอยผลิตภัณฑ์น้ำผลไม้ชนิดอื่น',
+        sourceTag: 'FDA Thailand Official Registry Database',
+        score: 10,
+        maxScore: 10,
+        isVerified: true,
+        timestamp: new Date(Date.now() - 3600000 * 11).toISOString()
+      },
+      {
+        id: `ev_m2_${Date.now()}_03`,
+        studentId: s3,
+        missionId: 'm2',
+        questionId: 'q7_doctor',
+        indicatorId: 'C3',
+        type: 'REASON',
+        title: 'SC06: ข้อเท็จจริงและคำเตือนจากแพทย์ผู้เชี่ยวชาญ',
+        content: 'แพทย์ผู้เชี่ยวชาญระบุว่าการดื่มน้ำหมักที่ไม่ผ่านการฆ่าเชื้ออาจทำให้ติดเชื้อในกระแสเลือด กรดเกินในกระเพาะ และเป็นอันตรายร้ายแรงถึงชีวิต',
+        sourceTag: 'แถลงการณ์กรมการแพทย์และสมาคมมะเร็งวิทยา',
+        score: 10,
+        maxScore: 10,
+        isVerified: true,
+        timestamp: new Date(Date.now() - 3600000 * 10).toISOString()
+      },
+      {
+        id: `ev_m2_${Date.now()}_04`,
+        studentId: s3,
+        missionId: 'm2',
+        questionId: 'q8_revision',
+        indicatorId: 'C4',
+        type: 'REVISION',
+        title: 'การปรับเปลี่ยนข้อสรุปหลังได้รับข้อมูลผลตรวจแล็บ',
+        content: 'ตอนแรกเชื่อว่าอาจเป็นสมุนไพรพื้นบ้านที่ปลอดภัย แต่เมื่อเห็นผลตรวจแล็บที่พบสารปนเปื้อนโลหะหนักและเชื้อแบคทีเรีย จึงปรับข้อสรุปเป็นผลิตภัณฑ์อันตรายห้ามดื่มเด็ดขาด',
+        sourceTag: 'Scientific Laboratory Report',
+        score: 10,
+        maxScore: 10,
+        isVerified: true,
+        timestamp: new Date(Date.now() - 3600000 * 9).toISOString()
+      },
+
+      // --- Mission 3 (คลิปตัดต่อแฉอาจารย์) ---
+      {
+        id: `ev_m3_${Date.now()}_01`,
+        studentId: s1,
+        missionId: 'm3',
+        questionId: 'q9_video_cut',
+        indicatorId: 'E1',
+        type: 'PROCESS',
+        title: 'SC07: ตรวจสอบความผิดปกติของภาพและเสียง (Deepfake/Cut)',
+        content: 'พบรอยต่อของคลื่นเสียงที่ถูกตัดแปะในวินาทีที่ 0:14 และระดับแสงเงาบริเวณใบหน้าที่ไม่สัมพันธ์กับการเคลื่อนไหวในคลิปวิดีโอ',
+        sourceTag: 'Digital Video Forensic Inspection',
+        score: 10,
+        maxScore: 10,
+        isVerified: true,
+        timestamp: new Date(Date.now() - 3600000 * 6).toISOString()
+      },
+      {
+        id: `ev_m3_${Date.now()}_02`,
+        studentId: s2,
+        missionId: 'm3',
+        questionId: 'q10_cctv',
+        indicatorId: 'E2',
+        type: 'COMPARISON',
+        title: 'SC08: เปรียบเทียบกับคลิปฉบับเต็มจากกล้องวงจรปิด',
+        content: 'เมื่อนำคลิปที่ถูกแชร์มาเทียบกับกล้องวงจรปิดของโรงเรียน พบว่าอาจารย์กำลังสาธิตการแสดงในบทเรียน ไม่ได้กำลังดุด่านักเรียนอย่างที่ถูกตัดต่อบิดเบือน',
+        sourceTag: 'School CCTV High-Definition Archive',
+        score: 10,
+        maxScore: 10,
+        isVerified: true,
+        timestamp: new Date(Date.now() - 3600000 * 5).toISOString()
+      },
+      {
+        id: `ev_m3_${Date.now()}_03`,
+        studentId: s3,
+        missionId: 'm3',
+        questionId: 'q11_account',
+        indicatorId: 'E3',
+        type: 'AUTHOR',
+        title: 'SC09: ตรวจสอบบัญชีผู้โพสต์คลิปแฉในโซเชียลมีเดีย',
+        content: 'บัญชีผู้โพสต์เป็นบัญชีอวตาร (Anonymous Account) สร้างขึ้นมาใหม่เพียง 2 ชั่วโมงก่อนปล่อยคลิป และไม่มีประวัติการโพสต์ข้อความอื่นใด',
+        sourceTag: 'X (Twitter) Profile Forensic Audit',
+        score: 10,
+        maxScore: 10,
+        isVerified: true,
+        timestamp: new Date(Date.now() - 3600000 * 4).toISOString()
+      },
+      {
+        id: `ev_m3_${Date.now()}_04`,
+        studentId: s2,
+        missionId: 'm3',
+        questionId: 'q12_student_voice',
+        indicatorId: 'E4',
+        type: 'STUDENT_VOICE',
+        title: 'เสียงสะท้อนนักเรียนหลังผ่านภารกิจสืบสวน',
+        content: 'ได้เรียนรู้ว่าไม่ควรแชร์หรือคอมเมนต์ด่าทอตามกระแสโซเชียล เพราะภาพและเสียงสามารถตัดต่อบิดเบือนได้ ต้องหาคลิปฉบับเต็มและพยานแวดล้อมก่อนเสมอ',
+        sourceTag: 'Detective Reflection & Ethics Log',
+        score: 10,
+        maxScore: 10,
+        isVerified: true,
+        timestamp: new Date(Date.now() - 3600000 * 3).toISOString()
+      },
+
+      // --- Mission 4 (ภารกิจตัดสินความจริง) ---
+      {
+        id: `ev_m4_${Date.now()}_01`,
+        studentId: s1,
+        missionId: 'm4',
+        questionId: 'q13_witness',
+        indicatorId: 'S1',
+        type: 'SOURCE',
+        title: 'SC10: การรวบรวมหลักฐานปฐมภูมิจากพื้นที่เกิดเหตุ',
+        content: 'บันทึกคำให้การของพยานบุคคล 3 คนที่อยู่ในเหตุการณ์จริง ระบุตรงกันว่าไม่ได้มีเหตุการณ์รุนแรงตามที่เพจข่าวท้องถิ่นโพสต์สร้างกระแส',
+        sourceTag: 'Primary Witness Interview Transcript',
+        score: 10,
+        maxScore: 10,
+        isVerified: true,
+        timestamp: new Date(Date.now() - 3600000 * 2).toISOString()
+      },
+      {
+        id: `ev_m4_${Date.now()}_02`,
+        studentId: s2,
+        missionId: 'm4',
+        questionId: 'q14_bias',
+        indicatorId: 'S2',
+        type: 'REASON',
+        title: 'SC11: ตรวจสอบผลประโยชน์ทับซ้อนและเจตนาแอบแฝง',
+        content: 'พบว่าเพจที่ปล่อยข่าวลือมีการแทรกแบนเนอร์โฆษณาเว็บพนันออนไลน์และขายสินค้า เพื่อหาผลประโยชน์จากยอดเข้าชมและการแชร์ (Clickbait Marketing)',
+        sourceTag: 'Page Commercial Monetization Audit',
+        score: 10,
+        maxScore: 10,
+        isVerified: true,
+        timestamp: new Date(Date.now() - 3600000 * 1).toISOString()
+      },
+      {
+        id: `ev_m4_${Date.now()}_03`,
+        studentId: s3,
+        missionId: 'm4',
+        questionId: 'q15_master',
+        indicatorId: 'G1',
+        type: 'DECISION',
+        title: 'คำแถลงปิดคดีสืบสวนความจริงระดับปรมาจารย์ (Master Verdict)',
+        content: 'สังเคราะห์ข้อมูลจาก 4 มิติ (ผู้ส่งสาร, วันที่, แหล่งอ้างอิง, และผลตรวจทางวิทยาศาสตร์) สรุปเป็นสำนวนคดีส่งมอบให้โรงเรียนและชุมชน',
+        sourceTag: 'Master Detective Comprehensive Verdict',
+        score: 10,
+        maxScore: 10,
         isVerified: true,
         timestamp: new Date().toISOString()
       }
     ];
-    demoEvidences.forEach(e => this.saveEvidence(e));
+
+    sampleEvidences.forEach(e => {
+      this.saveEvidence(e);
+    });
+
+    return sampleEvidences;
+  }
+
+  static seedDemoData(): void {
+    this.seedComprehensiveEvidences();
   }
 
   static resetAllData(): void {
