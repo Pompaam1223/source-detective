@@ -48,13 +48,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="font-extrabold text-base sm:text-lg tracking-wider text-amber-400 font-mono drop-shadow">
                 SOURCE DETECTIVE
               </span>
-              <span className="hidden xl:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                ★ นักสืบแหล่งข้อมูล
-              </span>
             </div>
-            <p className="text-[11px] text-amber-200/80 tracking-tight hidden sm:flex items-center gap-1 font-medium">
-              <span>สืบให้ลึก</span> • <span>คิดให้รอบ</span> • <span className="text-amber-400 font-bold">ตรวจสอบก่อนเชื่อ! 💡</span>
-            </p>
           </div>
         </div>
 
